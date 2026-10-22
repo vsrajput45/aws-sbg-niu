@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { cookies } from 'next/headers';
 import { db } from './db';
 import { UserRole } from './db/types';
@@ -10,6 +12,26 @@ export interface AuthSession {
 }
 
 const SESSION_COOKIE_NAME = 'aws_sbg_session';
+
+function getAdminPassword(): string | undefined {
+  if (process.env.ADMIN_PASSWORD) {
+    return process.env.ADMIN_PASSWORD;
+  }
+  // Local development fallback: dynamically read .env.local if dev server wasn't restarted
+  try {
+    const envPath = path.join(process.cwd(), '.env.local');
+    if (fs.existsSync(/*turbopackIgnore: true*/ envPath)) {
+      const content = fs.readFileSync(/*turbopackIgnore: true*/ envPath, 'utf-8');
+      const match = content.match(/^ADMIN_PASSWORD=(.*)$/m);
+      if (match && match[1]) {
+        return match[1].trim().replace(/^["']|["']$/g, '');
+      }
+    }
+  } catch {
+    // Ignore error
+  }
+  return undefined;
+}
 
 export async function createSession(email: string, role: UserRole): Promise<AuthSession> {
   const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -63,7 +85,7 @@ export async function verifyCredentials(email: string, password: string): Promis
     return { success: false, error: 'No admin or editor account found with this email.' };
   }
 
-  const configuredPassword = process.env.ADMIN_PASSWORD;
+  const configuredPassword = getAdminPassword();
   if (!configuredPassword) {
     console.error('CRITICAL: ADMIN_PASSWORD environment variable is not configured.');
     return { success: false, error: 'Server authentication configuration missing. Please set ADMIN_PASSWORD in environment variables.' };

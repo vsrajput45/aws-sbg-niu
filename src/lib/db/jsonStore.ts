@@ -1,14 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { EventRecord, RegistrationRecord, ProfileRecord, SiteSettingsRecord } from './types';
-import { initialProfiles, sampleDraftEvent, initialRegistrations } from './seed';
+import { EventRecord, RegistrationRecord, ProfileRecord, SiteSettingsRecord, TeamMemberRecord } from './types';
+import { initialProfiles, sampleDraftEvent, initialRegistrations, initialTeamMembers } from './seed';
 
 interface DatabaseData {
   profiles: ProfileRecord[];
   events: EventRecord[];
   registrations: RegistrationRecord[];
   site_settings?: SiteSettingsRecord;
+  team?: TeamMemberRecord[];
 }
 
 // In-memory cache for ultra-fast reads and fallback in serverless environments (Netlify, AWS Lambda)
@@ -107,6 +108,7 @@ function ensureDbFile(): DatabaseData {
         events: [sampleDraftEvent], // starts with ONE clearly-labelled draft event
         registrations: initialRegistrations,
         site_settings: { ...defaultSiteSettings },
+        team: [...initialTeamMembers],
       };
       try {
         fs.writeFileSync(/*turbopackIgnore: true*/ dbFile, JSON.stringify(initialData, null, 2), 'utf-8');
@@ -119,8 +121,18 @@ function ensureDbFile(): DatabaseData {
 
     const raw = fs.readFileSync(/*turbopackIgnore: true*/ dbFile, 'utf-8');
     const parsed: DatabaseData = JSON.parse(raw);
+    let needsRewrite = false;
+
     if (!parsed.site_settings) {
       parsed.site_settings = { ...defaultSiteSettings };
+      needsRewrite = true;
+    }
+    if (!parsed.team || parsed.team.length === 0) {
+      parsed.team = [...initialTeamMembers];
+      needsRewrite = true;
+    }
+
+    if (needsRewrite) {
       try {
         fs.writeFileSync(/*turbopackIgnore: true*/ dbFile, JSON.stringify(parsed, null, 2), 'utf-8');
       } catch {
@@ -136,6 +148,7 @@ function ensureDbFile(): DatabaseData {
       events: [sampleDraftEvent],
       registrations: initialRegistrations,
       site_settings: { ...defaultSiteSettings },
+      team: [...initialTeamMembers],
     };
     memoryCache = fallback;
     return fallback;
@@ -511,5 +524,106 @@ export const dbStore = {
     };
     writeDbFile(db);
     return db.site_settings;
+  },
+
+  // Core Team Management
+  getTeamMembers(): TeamMemberRecord[] {
+    const db = ensureDbFile();
+    if (!db.team || db.team.length === 0) {
+      db.team = [...initialTeamMembers];
+      writeDbFile(db);
+    }
+    return [...db.team].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  },
+
+  getTeamMemberById(id: string): TeamMemberRecord | undefined {
+    const members = this.getTeamMembers();
+    return members.find((m) => m.id === id);
+  },
+
+  saveTeamMember(data: Partial<TeamMemberRecord> & { name: string; role: string }): TeamMemberRecord {
+    const db = ensureDbFile();
+    if (!db.team) {
+      db.team = [...initialTeamMembers];
+    }
+
+    const now = new Date().toISOString();
+    const existingIndex = data.id ? db.team.findIndex((m) => m.id === data.id) : -1;
+
+    const initials = (data.name || 'Member')
+      .split(/\s+/)
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 3);
+
+    if (existingIndex >= 0) {
+      const existing = db.team[existingIndex];
+      const updated: TeamMemberRecord = {
+        ...existing,
+        ...data,
+        id: existing.id,
+        initials: data.initials || existing.initials || initials,
+        cardUrl: data.cardUrl || data.avatarUrl || existing.cardUrl,
+        updated_at: now,
+      };
+      db.team[existingIndex] = updated;
+      writeDbFile(db);
+      return updated;
+    } else {
+      const maxSortOrder = db.team.reduce((max, m) => Math.max(max, m.sort_order ?? 0), 0);
+      const newMember: TeamMemberRecord = {
+        id: data.id || `tm-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        name: data.name,
+        role: data.role,
+        department: data.department || 'Computer Science & Engineering',
+        bio: data.bio || '',
+        avatarUrl: data.avatarUrl || '/sbg-logo.svg',
+        cardUrl: data.cardUrl || data.avatarUrl || '/sbg-logo.svg',
+        initials: data.initials || initials,
+        session: data.session || '2026-27',
+        badge: data.badge || 'Leadership Core',
+        sort_order: data.sort_order !== undefined ? data.sort_order : maxSortOrder + 1,
+        linkedin_url: data.linkedin_url || '',
+        github_url: data.github_url || '',
+        created_at: now,
+        updated_at: now,
+      };
+      db.team.push(newMember);
+      writeDbFile(db);
+      return newMember;
+    }
+  },
+
+  deleteTeamMember(id: string): boolean {
+    const db = ensureDbFile();
+    if (!db.team) return false;
+    const idx = db.team.findIndex((m) => m.id === id);
+    if (idx === -1) return false;
+    db.team.splice(idx, 1);
+    writeDbFile(db);
+    return true;
+  },
+
+  reorderTeamMembers(ids: string[]): boolean {
+    const db = ensureDbFile();
+    if (!db.team) return false;
+
+    ids.forEach((id, index) => {
+      const member = db.team?.find((m) => m.id === id);
+      if (member) {
+        member.sort_order = index + 1;
+      }
+    });
+
+    writeDbFile(db);
+    return true;
+  },
+
+  resetTeamMembers(): TeamMemberRecord[] {
+    const db = ensureDbFile();
+    db.team = [...initialTeamMembers];
+    writeDbFile(db);
+    return [...db.team];
   },
 };

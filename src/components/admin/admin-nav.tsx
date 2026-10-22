@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Calendar, LayoutDashboard, PlusCircle, LogOut, ExternalLink, Shield, Settings } from 'lucide-react';
+import { Calendar, LayoutDashboard, PlusCircle, LogOut, ExternalLink, Shield, Settings, Users } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 
 interface AdminNavProps {
@@ -29,6 +29,7 @@ export function AdminNav({ userEmail = 'admin@niu.ac.in', userRole = 'admin' }: 
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/events', label: 'Manage Events', icon: Calendar },
     { href: '/admin/events/new', label: 'New Event', icon: PlusCircle },
+    { href: '/admin/team', label: 'Core Team', icon: Users },
     { href: '/admin/site-settings', label: 'Web Page Details', icon: Settings },
   ];
 

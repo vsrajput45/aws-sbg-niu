@@ -4,9 +4,17 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { ShieldCheck, Award, X, ExternalLink, Sparkles, UserCheck } from 'lucide-react';
 import { coreTeam, TeamMember } from '@/data/team';
+import { TeamMemberRecord } from '@/lib/db/types';
 
-export function TeamSection() {
-  const [selectedPoster, setSelectedPoster] = useState<TeamMember | null>(null);
+export type TeamSectionItem = TeamMember | TeamMemberRecord;
+
+interface TeamSectionProps {
+  members?: TeamSectionItem[];
+}
+
+export function TeamSection({ members }: TeamSectionProps) {
+  const displayMembers = members && members.length > 0 ? members : coreTeam;
+  const [selectedPoster, setSelectedPoster] = useState<TeamSectionItem | null>(null);
 
   return (
     <section id="team" className="py-24 sm:py-32 bg-[#000000]/80 backdrop-blur-[2px] border-b border-[#262626] relative">
@@ -29,17 +37,20 @@ export function TeamSection() {
           </p>
         </div>
 
-        {/* Team Cards Grid (6 Appointed Leaders) */}
+        {/* Team Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {coreTeam.map((member) => (
+          {displayMembers.map((member) => {
+            const memberKey = 'id' in member && member.id ? member.id : member.name;
+            const avatarSrc = member.avatarUrl || '/sbg-logo.svg';
+            return (
             <div
-              key={member.name}
+              key={memberKey}
               className="bg-[#0D0D0D] border border-[#262626] rounded-2xl overflow-hidden hover:border-[#FF9900]/60 transition-all duration-300 flex flex-col group shadow-xl hover:shadow-[#FF9900]/10"
             >
               {/* Member Photo Frame */}
               <div className="relative w-full aspect-[4/5] bg-[#141414] overflow-hidden">
                 <Image
-                  src={member.avatarUrl}
+                  src={avatarSrc}
                   alt={`${member.name} - ${member.role}`}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -104,7 +115,8 @@ export function TeamSection() {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Note / Recognition */}
@@ -148,12 +160,13 @@ export function TeamSection() {
             {/* Poster Image */}
             <div className="relative aspect-[801/1024] w-full bg-black">
               <Image
-                src={selectedPoster.cardUrl}
+                src={selectedPoster.cardUrl || selectedPoster.avatarUrl || '/sbg-logo.svg'}
                 alt={`${selectedPoster.name} Official Appointment Card`}
                 fill
                 sizes="(max-width: 768px) 100vw, 600px"
                 className="object-contain"
                 priority
+                unoptimized
               />
             </div>
 
@@ -163,7 +176,7 @@ export function TeamSection() {
                 AWS Student Builder Group at Noida International University
               </span>
               <a
-                href={selectedPoster.cardUrl}
+                href={selectedPoster.cardUrl || selectedPoster.avatarUrl || '/sbg-logo.svg'}
                 download={`${selectedPoster.name.toLowerCase().replace(/\s+/g, '-')}-aws-sbg.jpg`}
                 target="_blank"
                 rel="noopener noreferrer"

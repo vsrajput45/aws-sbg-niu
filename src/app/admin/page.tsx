@@ -20,6 +20,7 @@ export default async function AdminDashboardPage() {
   const allEvents = db.getAllEvents(true);
   const allRegistrations = db.getAllRegistrations();
   const siteSettings = db.getSiteSettings();
+  const teamMembers = db.getTeamMembers();
 
   // Metrics
   const totalEvents = allEvents.length;
@@ -45,7 +46,15 @@ export default async function AdminDashboardPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <Link
+              href="/admin/team"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#181818] hover:bg-[#222222] border border-[#333333] text-gray-200 hover:text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition"
+            >
+              <Users className="w-4 h-4 text-[#FF9900]" />
+              <span>Core Team ({teamMembers.length})</span>
+            </Link>
+
             <Link
               href="/admin/site-settings"
               className="inline-flex items-center gap-2 px-4 py-2 bg-[#181818] hover:bg-[#222222] border border-[#333333] text-gray-200 hover:text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition"
@@ -64,34 +73,64 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* 1-Click Site Customizer Quick Card */}
-        <div className="p-5 rounded-xl bg-gradient-to-r from-[#141414] via-[#121212] to-[#141414] border border-[#2B2B2B] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="p-3 rounded-lg bg-[#FF9900]/10 border border-[#FF9900]/30 text-[#FF9900] shrink-0">
-              <Globe className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-white font-heading">
-                  Live Web Page Customizer
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9900]/15 text-[#FF9900] border border-[#FF9900]/30">
-                  NEW
-                </span>
+        {/* Quick Action Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Core Team Management Card */}
+          <div className="p-5 rounded-xl bg-gradient-to-r from-[#141414] via-[#121212] to-[#141414] border border-[#2B2B2B] flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="p-3 rounded-lg bg-[#FF9900]/10 border border-[#FF9900]/30 text-[#FF9900] shrink-0">
+                <Users className="w-6 h-6" />
               </div>
-              <p className="text-xs text-gray-400 mt-0.5">
-                Current Title: <span className="text-gray-200 font-medium">{siteSettings.chapterName}</span> • Venue: <span className="text-gray-200 font-medium">{siteSettings.campusVenue}</span>
-              </p>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-white font-heading">
+                    Core Team Management
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9900]/15 text-[#FF9900] border border-[#FF9900]/30">
+                    {teamMembers.length} Leaders
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Add student organizers, update roles, and manage appointed leads.
+                </p>
+              </div>
             </div>
+
+            <Link
+              href="/admin/team"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider transition shadow-md shadow-[#FF9900]/20 shrink-0"
+            >
+              <span>Manage</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
-          <Link
-            href="/admin/site-settings"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider transition shadow-md shadow-[#FF9900]/20 shrink-0"
-          >
-            <span>Manage Site Details</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          {/* Site Details Card */}
+          <div className="p-5 rounded-xl bg-gradient-to-r from-[#141414] via-[#121212] to-[#141414] border border-[#2B2B2B] flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="p-3 rounded-lg bg-[#FF9900]/10 border border-[#FF9900]/30 text-[#FF9900] shrink-0">
+                <Globe className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-white font-heading">
+                    Live Web Page Details
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[260px]">
+                  {siteSettings.chapterName} • {siteSettings.campusVenue}
+                </p>
+              </div>
+            </div>
+
+            <Link
+              href="/admin/site-settings"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#181818] hover:bg-[#222222] border border-[#333333] text-white text-xs font-semibold uppercase tracking-wider transition shrink-0"
+            >
+              <span>Settings</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
 
         {/* Stat Cards Grid */}

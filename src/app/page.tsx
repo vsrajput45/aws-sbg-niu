@@ -54,6 +54,7 @@ export default function HomePage() {
   // Read database for published upcoming featured event
   const featuredEvent = db.getFeaturedUpcomingEvent();
   const allPublishedEvents = db.getAllEvents(false);
+  const teamMembers = db.getTeamMembers();
 
   // Organization + WebSite JSON-LD Schema
   const chapterJsonLd = {
@@ -133,7 +134,7 @@ export default function HomePage() {
         )}
 
         {/* 9. Core Team */}
-        <TeamSection />
+        <TeamSection members={teamMembers} />
 
         {/* 10. Venue */}
         <VenueSection venueName={featuredEvent?.venue_name} config={siteConfig} />

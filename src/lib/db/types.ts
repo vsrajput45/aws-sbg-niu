@@ -142,3 +142,22 @@ export interface SiteSettingsRecord {
   marqueeTopics: string[];
   updated_at?: string;
 }
+
+export interface TeamMemberRecord {
+  id: string;
+  name: string;
+  role: string;
+  department: string;
+  bio: string;
+  avatarUrl: string;
+  cardUrl?: string;
+  initials?: string;
+  session: string;
+  badge: string;
+  sort_order: number;
+  linkedin_url?: string;
+  github_url?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+

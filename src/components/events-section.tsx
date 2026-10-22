@@ -17,13 +17,13 @@ export function EventsSection({ events }: EventsSectionProps) {
     .sort((a, b) => a.event_date.localeCompare(b.event_date));
 
   return (
-    <section id="events" className="py-24 sm:py-32 bg-[#000000]/80 backdrop-blur-[2px] border-b border-[#262626]">
+    <section id="events" className="py-24 sm:py-32 bg-[#070312]/85 backdrop-blur-[2px] border-b border-[#231238]">
       <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 space-y-16">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#262626] bg-[#0A0A0A] px-3.5 py-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#FF9900]" />
-            <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-[#120829] px-3.5 py-1.5 shadow-sm shadow-purple-950/40">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#A855F7]" />
+            <span className="text-xs font-semibold text-purple-200 uppercase tracking-wider">
               Community Calendar
             </span>
           </div>
@@ -39,8 +39,8 @@ export function EventsSection({ events }: EventsSectionProps) {
 
         {upcomingEvents.length === 0 ? (
           /* Designed Empty State */
-          <div className="bg-[#0D0D0D] border border-[#262626] rounded-2xl p-10 sm:p-14 text-center max-w-2xl mx-auto space-y-6 shadow-xl">
-            <div className="w-16 h-16 rounded-full bg-[#FF9900]/10 border border-[#FF9900]/30 flex items-center justify-center mx-auto text-[#FF9900]">
+          <div className="bg-[#0E0724] border border-[#24143D] rounded-2xl p-10 sm:p-14 text-center max-w-2xl mx-auto space-y-6 shadow-xl shadow-purple-950/20">
+            <div className="w-16 h-16 rounded-full bg-purple-950/60 border border-purple-500/40 flex items-center justify-center mx-auto text-[#C084FC]">
               <Calendar className="w-8 h-8" />
             </div>
 
@@ -58,7 +58,7 @@ export function EventsSection({ events }: EventsSectionProps) {
                 href={siteConfig.meetupUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg shadow-[#FF9900]/25 cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] hover:from-[#6D28D9] hover:to-[#9333EA] text-white text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg shadow-purple-600/30 cursor-pointer"
               >
                 <span>Join Us on Meetup</span>
                 <ExternalLink className="w-4 h-4" />
@@ -77,18 +77,18 @@ export function EventsSection({ events }: EventsSectionProps) {
               return (
                 <div
                   key={evt.id}
-                  className="bg-[#0D0D0D] border border-[#262626] rounded-xl overflow-hidden hover:border-[#FF9900]/60 transition-all duration-300 flex flex-col group shadow-lg"
+                  className="bg-[#0E0724] border border-[#24143D] rounded-xl overflow-hidden hover:border-purple-500/60 transition-all duration-300 flex flex-col group shadow-lg shadow-purple-950/20"
                 >
-                  <div className="relative h-48 w-full bg-[#181818] overflow-hidden">
+                  <div className="relative h-48 w-full bg-[#180C36] overflow-hidden">
                     <Image
                       src={evt.banner_url || '/hero.jpg'}
                       alt={evt.title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0D0D0D] via-transparent to-black/40" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0E0724] via-transparent to-black/40" />
                     <div className="absolute top-3 left-3 flex gap-2">
-                      <span className="px-2.5 py-1 rounded bg-black/80 backdrop-blur-sm border border-white/10 text-[10px] font-bold uppercase tracking-wider text-[#FF9900]">
+                      <span className="px-2.5 py-1 rounded bg-black/80 backdrop-blur-sm border border-purple-500/30 text-[10px] font-bold uppercase tracking-wider text-[#C084FC]">
                         {evt.category}
                       </span>
                       <span className="px-2.5 py-1 rounded bg-black/80 backdrop-blur-sm border border-white/10 text-[10px] font-bold uppercase tracking-wider text-gray-200 capitalize">
@@ -99,14 +99,14 @@ export function EventsSection({ events }: EventsSectionProps) {
 
                   <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-xs text-[#FF9900] font-semibold">
+                      <div className="flex items-center gap-2 text-xs text-[#C084FC] font-semibold">
                         <Calendar className="w-3.5 h-3.5" />
                         <span>{formatDate(evt.event_date)}</span>
                         <span>•</span>
                         <span>{evt.start_time}</span>
                       </div>
 
-                      <h3 className="text-lg font-bold text-white font-heading group-hover:text-[#FF9900] transition-colors line-clamp-2">
+                      <h3 className="text-lg font-bold text-white font-heading group-hover:text-[#C084FC] transition-colors line-clamp-2">
                         {evt.title}
                       </h3>
 
@@ -115,16 +115,16 @@ export function EventsSection({ events }: EventsSectionProps) {
                       </p>
                     </div>
 
-                    <div className="pt-4 border-t border-[#1F1F1F] space-y-3">
+                    <div className="pt-4 border-t border-[#1C1033] space-y-3">
                       <div className="flex items-center justify-between text-xs text-gray-300">
                         <span className="flex items-center gap-1.5 truncate max-w-[170px]">
-                          <MapPin className="w-3.5 h-3.5 text-[#FF9900] shrink-0" />
+                          <MapPin className="w-3.5 h-3.5 text-[#C084FC] shrink-0" />
                           <span className="truncate">{evt.venue_name || evt.platform || 'Auditorium'}</span>
                         </span>
 
                         <span className="text-xs font-medium text-gray-300">
                           {isFull ? (
-                            <span className="text-amber-400 font-semibold">Waitlist Active</span>
+                            <span className="text-purple-300 font-semibold">Waitlist Active</span>
                           ) : seatsLeft !== null ? (
                             <span>{seatsLeft} seats left</span>
                           ) : (
@@ -135,7 +135,7 @@ export function EventsSection({ events }: EventsSectionProps) {
 
                       <Link
                         href={`/events/${evt.slug}`}
-                        className="w-full py-2.5 px-4 rounded-lg bg-[#181818] hover:bg-[#FF9900] text-white hover:text-black text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+                        className="w-full py-2.5 px-4 rounded-lg bg-[#180C36] hover:bg-gradient-to-r hover:from-[#7C3AED] hover:to-[#A855F7] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border border-purple-900/40"
                       >
                         <span>View Details & RSVP</span>
                         <ArrowRight className="w-3.5 h-3.5" />

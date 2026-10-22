@@ -98,18 +98,24 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${plusJakartaSans.variable} ${inter.variable} dark h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#000000] text-[#E5E7EB] font-sans selection:bg-[#FF9900]/30 selection:text-white relative">
-        {/* Ambient Site Background Campus Layer */}
+      <body className="min-h-full flex flex-col bg-[#070312] text-[#E5E7EB] font-sans selection:bg-purple-600/40 selection:text-white relative">
+        {/* Ambient Site Background Campus Layer with AWS Cloud Purple Glow */}
         <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
           <Image
             src="/hero.jpg"
             alt="Noida International University Campus Background"
             fill
             sizes="100vw"
-            className="object-cover object-center scale-100 opacity-25"
+            className="object-cover object-center scale-100 opacity-20"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#000000]/80 via-[#000000]/70 to-[#000000]/90" />
+          {/* Deep Cosmic Purple & Violet Cloud Aura */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#070312]/95 via-[#0C061E]/90 to-[#06020D]" />
+
+          {/* Ambient Purple Cloud Lights */}
+          <div className="absolute -top-40 left-1/4 w-[700px] h-[700px] bg-purple-600/15 rounded-full blur-[140px] pointer-events-none" />
+          <div className="absolute top-1/3 -right-32 w-[600px] h-[600px] bg-violet-600/12 rounded-full blur-[160px] pointer-events-none" />
+          <div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[150px] pointer-events-none" />
         </div>
         {children}
       </body>

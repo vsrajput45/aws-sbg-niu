@@ -12,12 +12,12 @@ export function VenueSection({ venueName, config }: VenueSectionProps) {
   const displayVenue = venueName || cfg.campusVenue;
 
   return (
-    <section id="venue" className="py-24 sm:py-32 bg-[#000000]/80 backdrop-blur-[2px] border-b border-[#262626]">
+    <section id="venue" className="py-24 sm:py-32 bg-[#070312]/85 backdrop-blur-[2px] border-b border-[#231238]">
       <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 space-y-16">
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#262626] bg-[#0A0A0A] px-3.5 py-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#FF9900]" />
-            <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-[#120829] px-3.5 py-1.5 shadow-sm shadow-purple-950/40">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#A855F7]" />
+            <span className="text-xs font-semibold text-purple-200 uppercase tracking-wider">
               Host Campus
             </span>
           </div>
@@ -31,11 +31,11 @@ export function VenueSection({ venueName, config }: VenueSectionProps) {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-8 items-center bg-[#0D0D0D] border border-[#262626] rounded-2xl overflow-hidden p-6 sm:p-10 shadow-2xl">
+        <div className="grid lg:grid-cols-12 gap-8 items-center bg-[#0E0724] border border-[#24143D] rounded-2xl overflow-hidden p-6 sm:p-10 shadow-2xl shadow-purple-950/30">
           {/* Left Details */}
           <div className="lg:col-span-7 space-y-6">
             <div className="space-y-2">
-              <span className="text-xs font-bold text-[#FF9900] uppercase tracking-wider">
+              <span className="text-xs font-bold text-[#C084FC] uppercase tracking-wider">
                 Auditorium / Meeting Space
               </span>
               <h3 className="text-2xl sm:text-3xl font-bold font-heading text-white">
@@ -54,7 +54,7 @@ export function VenueSection({ venueName, config }: VenueSectionProps) {
                 href={cfg.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-md shadow-[#FF9900]/20"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] hover:from-[#6D28D9] hover:to-[#9333EA] text-white text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-md shadow-purple-600/30"
               >
                 <Navigation className="w-4 h-4" />
                 <span>Get Directions (Google Maps)</span>
@@ -64,24 +64,24 @@ export function VenueSection({ venueName, config }: VenueSectionProps) {
                 href={cfg.appleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#181818] hover:bg-[#222] border border-[#333] text-gray-300 hover:text-white text-xs font-semibold uppercase tracking-wider transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#180C36] hover:bg-[#22104C] border border-purple-900/40 text-gray-300 hover:text-white text-xs font-semibold uppercase tracking-wider transition-all"
               >
-                <MapPin className="w-4 h-4 text-[#FF9900]" />
+                <MapPin className="w-4 h-4 text-[#C084FC]" />
                 <span>Apple Maps</span>
               </a>
 
               <a
                 href={`mailto:${cfg.officialEmail}`}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#181818] hover:bg-[#222] border border-[#333] text-gray-300 hover:text-white text-xs font-semibold uppercase tracking-wider transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#180C36] hover:bg-[#22104C] border border-purple-900/40 text-gray-300 hover:text-white text-xs font-semibold uppercase tracking-wider transition-all"
               >
-                <Mail className="w-4 h-4 text-[#FF9900]" />
+                <Mail className="w-4 h-4 text-[#C084FC]" />
                 <span>Contact Organizers</span>
               </a>
             </div>
           </div>
 
           {/* Right Visual Campus Photo */}
-          <div className="lg:col-span-5 relative h-64 sm:h-80 w-full rounded-xl overflow-hidden border border-[#222222] group">
+          <div className="lg:col-span-5 relative h-64 sm:h-80 w-full rounded-xl overflow-hidden border border-purple-900/40 group">
             <Image
               src="/hero.jpg"
               alt="Noida International University Campus"

@@ -61,16 +61,16 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
     canvas.width = width;
     canvas.height = height;
 
-    // 1. Background Obsidian Gradient
+    // 1. Background Obsidian / Deep Cosmic Purple Gradient
     const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-    bgGrad.addColorStop(0, '#090909');
-    bgGrad.addColorStop(0.5, '#121212');
-    bgGrad.addColorStop(1, '#050505');
+    bgGrad.addColorStop(0, '#0C061E');
+    bgGrad.addColorStop(0.5, '#140A2E');
+    bgGrad.addColorStop(1, '#070312');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, width, height);
 
     // 2. Subtle Geometric Grid / Wireframe Pattern
-    ctx.strokeStyle = '#1F1F1F';
+    ctx.strokeStyle = '#24143D';
     ctx.lineWidth = 1;
     const gridSize = 45;
     for (let x = 0; x < width; x += gridSize) {
@@ -86,23 +86,23 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
       ctx.stroke();
     }
 
-    // 3. Orange Glow Circles (Top Right & Bottom Left)
+    // 3. Purple & Violet Glow Orbs (Top Right & Bottom Left)
     const glow1 = ctx.createRadialGradient(900, 150, 20, 900, 150, 450);
-    glow1.addColorStop(0, 'rgba(255, 153, 0, 0.22)');
-    glow1.addColorStop(1, 'rgba(255, 153, 0, 0)');
+    glow1.addColorStop(0, 'rgba(168, 85, 247, 0.30)');
+    glow1.addColorStop(1, 'rgba(168, 85, 247, 0)');
     ctx.fillStyle = glow1;
     ctx.fillRect(0, 0, width, height);
 
     const glow2 = ctx.createRadialGradient(150, 1200, 10, 150, 1200, 400);
-    glow2.addColorStop(0, 'rgba(255, 153, 0, 0.12)');
-    glow2.addColorStop(1, 'rgba(255, 153, 0, 0)');
+    glow2.addColorStop(0, 'rgba(192, 132, 252, 0.20)');
+    glow2.addColorStop(1, 'rgba(192, 132, 252, 0)');
     ctx.fillStyle = glow2;
     ctx.fillRect(0, 0, width, height);
 
     // 4. Pass Card Inner Frame
     const margin = 50;
     const cardRadius = 36;
-    ctx.strokeStyle = '#2A2A2A';
+    ctx.strokeStyle = '#2D1854';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.roundRect(margin, margin, width - margin * 2, height - margin * 2, cardRadius);
@@ -110,8 +110,8 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
 
     // 5. Header: AWS SBG Logos & Chapter Header
     // Lanyard punch hole aesthetic
-    ctx.fillStyle = '#050505';
-    ctx.strokeStyle = '#333333';
+    ctx.fillStyle = '#070312';
+    ctx.strokeStyle = '#381C66';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.roundRect(width / 2 - 90, margin + 25, 180, 26, 13);
@@ -119,7 +119,7 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
     ctx.stroke();
 
     // Top Category Eyebrow
-    ctx.fillStyle = '#FF9900';
+    ctx.fillStyle = '#C084FC';
     ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
     ctx.textAlign = 'center';
     ctx.letterSpacing = '4px';
@@ -131,28 +131,28 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
     ctx.fillText('Noida International University', width / 2, 215);
 
     // Decorative Divider Line with Diamond
-    ctx.strokeStyle = '#333333';
+    ctx.strokeStyle = '#2D1854';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(180, 260);
     ctx.lineTo(width - 180, 260);
     ctx.stroke();
 
-    ctx.fillStyle = '#FF9900';
+    ctx.fillStyle = '#C084FC';
     ctx.beginPath();
     ctx.arc(width / 2, 260, 6, 0, Math.PI * 2);
     ctx.fill();
 
-    // 6. User Avatar Photo (Circular Mask with Orange Ring)
+    // 6. User Avatar Photo (Circular Mask with Purple Ring)
     const centerX = width / 2;
     const centerY = 470;
     const radius = 160;
 
     // Outer Glowing Ring
     ctx.save();
-    ctx.strokeStyle = '#FF9900';
+    ctx.strokeStyle = '#A855F7';
     ctx.lineWidth = 8;
-    ctx.shadowColor = 'rgba(255, 153, 0, 0.4)';
+    ctx.shadowColor = 'rgba(168, 85, 247, 0.55)';
     ctx.shadowBlur = 30;
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius + 8, 0, Math.PI * 2);
@@ -184,7 +184,7 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
 
       ctx.drawImage(photoImage, drawX, drawY, drawW, drawH);
     } else {
-      ctx.fillStyle = '#181818';
+      ctx.fillStyle = '#180C36';
       ctx.fillRect(centerX - radius, centerY - radius, radius * 2, radius * 2);
     }
     ctx.restore();
@@ -197,12 +197,12 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
     const pillWidth = Math.max(260, textMetrics.width + 60);
     const pillHeight = 52;
 
-    ctx.fillStyle = '#FF9900';
+    ctx.fillStyle = '#8B5CF6';
     ctx.beginPath();
     ctx.roundRect(centerX - pillWidth / 2, pillY - pillHeight / 2, pillWidth, pillHeight, 26);
     ctx.fill();
 
-    ctx.fillStyle = '#000000';
+    ctx.fillStyle = '#FFFFFF';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(roleText, centerX, pillY);
@@ -215,17 +215,17 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
     ctx.fillText(fullName || 'Your Full Name', centerX, 810);
 
     // 9. College / Company Name
-    ctx.fillStyle = '#9CA3AF';
+    ctx.fillStyle = '#C084FC';
     ctx.font = '28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
     ctx.fillText(institution || 'Noida International University', centerX, 865);
 
     // 10. Pass ID / Unique Chapter Badge Code
-    ctx.fillStyle = '#666666';
+    ctx.fillStyle = '#9CA3AF';
     ctx.font = 'bold 22px "Courier New", Courier, monospace';
     ctx.fillText('OFFICIAL COMMUNITY PASS • NIUSBG-2026', centerX, 920);
 
     // 11. Bottom Banner & Watermark
-    ctx.strokeStyle = '#222222';
+    ctx.strokeStyle = '#24143D';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(100, 1180);
@@ -281,9 +281,9 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
     <div className="space-y-16">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         {/* Left Column: Input Form Controls */}
-        <div className="lg:col-span-5 bg-[#0D0D0D] border border-[#262626] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
+        <div className="lg:col-span-5 bg-[#0E0724] border border-[#24143D] rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
           <div className="space-y-1">
-            <span className="text-xs font-bold text-[#FF9900] uppercase tracking-wider block">
+            <span className="text-xs font-bold text-[#C084FC] uppercase tracking-wider block">
               Customizer
             </span>
             <h2 className="text-xl font-bold font-heading text-white">
@@ -293,7 +293,7 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
 
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-medium text-purple-200 uppercase tracking-wider mb-2">
                 Full Name *
               </label>
               <input
@@ -302,18 +302,18 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Aarav Sharma"
-                className="w-full px-3.5 py-2.5 bg-[#181818] border border-[#333333] rounded-lg text-white text-sm focus:outline-none focus:border-[#FF9900]"
+                className="w-full px-3.5 py-2.5 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-sm focus:outline-none focus:border-[#A855F7]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-medium text-purple-200 uppercase tracking-wider mb-2">
                 Community Role *
               </label>
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#181818] border border-[#333333] rounded-lg text-white text-sm focus:outline-none focus:border-[#FF9900]"
+                className="w-full px-3.5 py-2.5 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-sm focus:outline-none focus:border-[#A855F7]"
               >
                 <option value="Community Member">Community Member (Default)</option>
                 <option value="Attendee">Attendee</option>
@@ -324,7 +324,7 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-medium text-purple-200 uppercase tracking-wider mb-2">
                 College / Organization
               </label>
               <input
@@ -332,19 +332,19 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
                 value={institution}
                 onChange={(e) => setInstitution(e.target.value)}
                 placeholder="Noida International University"
-                className="w-full px-3.5 py-2.5 bg-[#181818] border border-[#333333] rounded-lg text-white text-sm focus:outline-none focus:border-[#FF9900]"
+                className="w-full px-3.5 py-2.5 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-sm focus:outline-none focus:border-[#A855F7]"
               />
             </div>
 
             {/* Photo Upload Zone */}
             <div>
-              <label className="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-medium text-purple-200 uppercase tracking-wider mb-2">
                 Your Photo (PNG / JPG / WEBP)
               </label>
-              <label className="border-2 border-dashed border-[#333333] hover:border-[#FF9900] rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition bg-[#141414]">
-                <Camera className="w-6 h-6 text-[#FF9900]" />
+              <label className="border-2 border-dashed border-[#24143D] hover:border-[#A855F7] rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition bg-[#13092B]">
+                <Camera className="w-6 h-6 text-[#C084FC]" />
                 <span className="text-xs font-semibold text-white">Click or drag photo here</span>
-                <span className="text-[10px] text-gray-500">Square or portrait recommended</span>
+                <span className="text-[10px] text-gray-400">Square or portrait recommended</span>
                 <input
                   type="file"
                   accept="image/png, image/jpeg, image/webp"
@@ -359,7 +359,7 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
             <button
               onClick={handleDownload}
               disabled={downloading}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.01] shadow-lg shadow-[#FF9900]/25 flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] hover:brightness-110 text-white text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.01] shadow-lg shadow-purple-900/30 flex items-center justify-center gap-2 cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>{downloading ? 'Generating PNG...' : 'Download High-Res Badge (1080×1350)'}</span>
@@ -367,20 +367,20 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
           </div>
 
           {/* Share Intents */}
-          <div className="space-y-2 pt-2 border-t border-[#222222]">
-            <span className="text-gray-400 text-[11px] font-semibold uppercase tracking-wider block">
+          <div className="space-y-2 pt-2 border-t border-[#24143D]">
+            <span className="text-purple-300 text-[11px] font-semibold uppercase tracking-wider block">
               Share Your Badge with #AWSSBGNIU
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleShareOnLinkedIn}
-                className="flex-1 py-2 bg-[#1A1A1A] hover:bg-[#252525] border border-[#333] rounded-lg text-xs font-semibold text-gray-200 hover:text-white transition"
+                className="flex-1 py-2 bg-[#180C36] hover:bg-[#201045] border border-[#24143D] rounded-lg text-xs font-semibold text-purple-200 hover:text-white transition"
               >
                 Share on LinkedIn
               </button>
               <button
                 onClick={handleShareOnX}
-                className="flex-1 py-2 bg-[#1A1A1A] hover:bg-[#252525] border border-[#333] rounded-lg text-xs font-semibold text-gray-200 hover:text-white transition"
+                className="flex-1 py-2 bg-[#180C36] hover:bg-[#201045] border border-[#24143D] rounded-lg text-xs font-semibold text-purple-200 hover:text-white transition"
               >
                 Share on X
               </button>
@@ -388,8 +388,8 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
           </div>
 
           {/* Privacy Note */}
-          <div className="p-3 bg-[#141414] border border-[#222] rounded-xl flex items-start gap-2.5 text-[11px] text-gray-400">
-            <ShieldCheck className="w-4 h-4 text-[#FF9900] shrink-0 mt-0.5" />
+          <div className="p-3 bg-[#13092B] border border-[#24143D] rounded-xl flex items-start gap-2.5 text-[11px] text-gray-300">
+            <ShieldCheck className="w-4 h-4 text-[#C084FC] shrink-0 mt-0.5" />
             <span>
               <strong>Privacy Guaranteed:</strong> Your photo is processed 100% inside your local browser canvas and is never uploaded to any server.
             </span>
@@ -398,46 +398,46 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Member'
 
         {/* Right Column: Live Badge Canvas Preview */}
         <div className="lg:col-span-7 flex flex-col items-center">
-          <div className="relative w-full max-w-md shadow-2xl rounded-2xl overflow-hidden border border-[#2A2A2A] bg-[#0A0A0A]">
+          <div className="relative w-full max-w-md shadow-2xl rounded-2xl overflow-hidden border border-[#24143D] bg-[#070312]">
             <canvas
               ref={canvasRef}
               className="w-full h-auto aspect-[1080/1350] block"
             />
           </div>
-          <span className="text-xs text-gray-500 mt-3">
+          <span className="text-xs text-purple-300/70 mt-3">
             Live client-side canvas render • 1080 × 1350 px
           </span>
         </div>
       </div>
 
       {/* 3-Step "How to Share" Guide */}
-      <section className="bg-[#0D0D0D] border border-[#262626] rounded-2xl p-8 sm:p-10 space-y-6">
+      <section className="bg-[#0E0724] border border-[#24143D] rounded-2xl p-8 sm:p-10 space-y-6 shadow-xl">
         <h3 className="text-xl font-bold font-heading text-white text-center">
           How to Share Your Badge
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-5 bg-[#141414] border border-[#222222] rounded-xl space-y-2">
-            <span className="text-xs font-mono font-bold text-[#FF9900] block">01 / DOWNLOAD</span>
+          <div className="p-5 bg-[#13092B] border border-[#24143D] rounded-xl space-y-2">
+            <span className="text-xs font-mono font-bold text-[#C084FC] block">01 / DOWNLOAD</span>
             <h4 className="text-sm font-bold text-white font-heading">Download High-Res Image</h4>
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <p className="text-xs text-gray-300 leading-relaxed">
               Click &quot;Download High-Res Badge&quot; to save the crystal clear 1080×1350 PNG file to your computer or mobile.
             </p>
           </div>
 
-          <div className="p-5 bg-[#141414] border border-[#222222] rounded-xl space-y-2">
-            <span className="text-xs font-mono font-bold text-[#FF9900] block">02 / POST ONLINE</span>
+          <div className="p-5 bg-[#13092B] border border-[#24143D] rounded-xl space-y-2">
+            <span className="text-xs font-mono font-bold text-[#C084FC] block">02 / POST ONLINE</span>
             <h4 className="text-sm font-bold text-white font-heading">Post on LinkedIn &amp; X</h4>
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <p className="text-xs text-gray-300 leading-relaxed">
               Attach the downloaded badge to a new post sharing your excitement for learning cloud computing with AWS SBG NIU.
             </p>
           </div>
 
-          <div className="p-5 bg-[#141414] border border-[#222222] rounded-xl space-y-2">
-            <span className="text-xs font-mono font-bold text-[#FF9900] block">03 / TAG #AWSSBGNIU</span>
+          <div className="p-5 bg-[#13092B] border border-[#24143D] rounded-xl space-y-2">
+            <span className="text-xs font-mono font-bold text-[#C084FC] block">03 / TAG #AWSSBGNIU</span>
             <h4 className="text-sm font-bold text-white font-heading">Tag the Community</h4>
-            <p className="text-xs text-gray-400 leading-relaxed">
-              Use hashtag <code className="text-[#FF9900]">#AWSSBGNIU</code> so our community builders can discover and repost your badge!
+            <p className="text-xs text-gray-300 leading-relaxed">
+              Use hashtag <code className="text-[#C084FC]">#AWSSBGNIU</code> so our community builders can discover and repost your badge!
             </p>
           </div>
         </div>

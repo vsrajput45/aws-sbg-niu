@@ -101,16 +101,18 @@ export default function CfpPage() {
         <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 space-y-20">
           {/* Hero */}
           <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#262626] bg-[#0A0A0A] px-3.5 py-1.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FF9900]" />
-              <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#24143D] bg-[#13092B] px-3.5 py-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#C084FC] shadow-[0_0_8px_#C084FC]" />
+              <span className="text-xs font-semibold text-purple-200 uppercase tracking-wider">
                 Call For Speakers • Rolling Review
               </span>
             </div>
 
             <h1 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight">
               Share Your Knowledge with <br />
-              <span className="text-[#FF9900]">Student Builders at NIU</span>
+              <span className="bg-gradient-to-r from-[#A855F7] via-[#C084FC] to-violet-200 bg-clip-text text-transparent">
+                Student Builders at NIU
+              </span>
             </h1>
 
             <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
@@ -122,7 +124,7 @@ export default function CfpPage() {
                 href={siteConfig.formLinks.speakerInterestForm}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg shadow-[#FF9900]/25 cursor-pointer"
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] hover:brightness-110 text-white text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg shadow-purple-900/30 cursor-pointer"
               >
                 <span>Express Interest to Speak</span>
                 <ExternalLink className="w-4 h-4" />
@@ -133,7 +135,7 @@ export default function CfpPage() {
           {/* Why Speak Grid (Rendered ONCE) */}
           <section className="space-y-8">
             <div className="text-center space-y-2">
-              <span className="text-xs font-bold text-[#FF9900] uppercase tracking-wider">Speaker Recognition</span>
+              <span className="text-xs font-bold text-[#C084FC] uppercase tracking-wider">Speaker Recognition</span>
               <h2 className="text-2xl sm:text-3xl font-bold font-heading text-white">Why Speak at Our Sessions?</h2>
             </div>
 
@@ -143,13 +145,13 @@ export default function CfpPage() {
                 return (
                   <div
                     key={perk.title}
-                    className="bg-[#0D0D0D] border border-[#262626] rounded-xl p-6 hover:border-[#FF9900]/50 transition-all space-y-3 shadow-md"
+                    className="bg-[#0E0724] border border-[#24143D] rounded-xl p-6 hover:border-[#8B5CF6]/50 transition-all space-y-3 shadow-md"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-[#181818] border border-[#262626] flex items-center justify-center text-[#FF9900]">
+                    <div className="w-10 h-10 rounded-lg bg-[#180C36] border border-[#24143D] flex items-center justify-center text-[#C084FC]">
                       <Icon className="w-5 h-5" />
                     </div>
                     <h3 className="text-base font-bold text-white font-heading">{perk.title}</h3>
-                    <p className="text-xs sm:text-sm text-gray-200 leading-relaxed font-normal">{perk.desc}</p>
+                    <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-normal">{perk.desc}</p>
                   </div>
                 );
               })}
@@ -157,11 +159,11 @@ export default function CfpPage() {
           </section>
 
           {/* Session Tracks */}
-          <section className="bg-[#0D0D0D] border border-[#262626] rounded-2xl p-8 sm:p-10 space-y-6 text-center">
+          <section className="bg-[#0E0724] border border-[#24143D] rounded-2xl p-8 sm:p-10 space-y-6 text-center shadow-lg">
             <div className="space-y-2">
-              <span className="text-xs font-bold text-[#FF9900] uppercase tracking-wider">Topic Areas</span>
+              <span className="text-xs font-bold text-[#C084FC] uppercase tracking-wider">Topic Areas</span>
               <h2 className="text-2xl font-bold font-heading text-white">Session Tracks We Welcome</h2>
-              <p className="text-xs sm:text-sm text-gray-200 max-w-xl mx-auto">
+              <p className="text-xs sm:text-sm text-gray-300 max-w-xl mx-auto">
                 Aligned with our registered focus areas and high-demand student learning tracks.
               </p>
             </div>
@@ -170,7 +172,7 @@ export default function CfpPage() {
               {tracks.map((track) => (
                 <span
                   key={track}
-                  className="px-3.5 py-1.5 rounded-lg bg-[#141414] border border-[#262626] text-xs font-semibold text-gray-200 hover:text-white hover:border-[#FF9900]/60 transition"
+                  className="px-3.5 py-1.5 rounded-lg bg-[#180C36] border border-[#24143D] text-xs font-semibold text-purple-200 hover:text-white hover:border-[#8B5CF6]/60 transition"
                 >
                   {track}
                 </span>
@@ -186,9 +188,9 @@ export default function CfpPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {speakerFaqs.map((faq) => (
-                <div key={faq.q} className="p-5 bg-[#0D0D0D] border border-[#262626] rounded-xl space-y-2">
+                <div key={faq.q} className="p-5 bg-[#0E0724] border border-[#24143D] rounded-xl space-y-2 shadow-sm">
                   <h3 className="text-sm font-bold text-white font-heading">{faq.q}</h3>
-                  <p className="text-xs sm:text-sm text-gray-200 leading-relaxed">{faq.a}</p>
+                  <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">{faq.a}</p>
                 </div>
               ))}
             </div>

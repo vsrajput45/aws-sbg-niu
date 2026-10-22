@@ -130,16 +130,16 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
       <div 
-        className="relative bg-[#111111] border border-[#262626] rounded-2xl max-w-xl w-full p-6 sm:p-8 text-white shadow-2xl my-8 overflow-hidden"
+        className="relative bg-[#0E0724] border border-[#24143D] rounded-2xl max-w-xl w-full p-6 sm:p-8 text-white shadow-2xl my-8 overflow-hidden"
         style={{ overscrollBehavior: 'contain' }}
       >
-        {/* Glow */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF9900]/10 rounded-full blur-[100px] pointer-events-none" />
+        {/* Ambient Glow */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#8B5CF6]/15 rounded-full blur-[100px] pointer-events-none" />
 
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 text-gray-400 hover:text-white rounded-lg hover:bg-[#1A1A1A] transition"
+          className="absolute top-5 right-5 p-2 text-gray-400 hover:text-white rounded-lg hover:bg-[#180C36] transition"
         >
           <X className="w-5 h-5" />
         </button>
@@ -149,7 +149,7 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
             {/* Header */}
             <div className="pr-8 space-y-1.5 mb-6">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold text-[#FF9900] uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-[#C084FC] uppercase tracking-wider">
                   Event Registration
                 </span>
                 {isFull ? (
@@ -168,13 +168,13 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
               </div>
 
               <h2 className="text-xl sm:text-2xl font-bold font-heading text-white">{event.title}</h2>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400 pt-1">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-300 pt-1">
                 <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-[#FF9900]" />
+                  <Calendar className="w-3.5 h-3.5 text-[#C084FC]" />
                   {formatDate(event.event_date)}
                 </span>
                 <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-[#FF9900]" />
+                  <Clock className="w-3.5 h-3.5 text-[#C084FC]" />
                   {event.start_time} - {event.end_time}
                 </span>
               </div>
@@ -212,7 +212,7 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-purple-200 mb-1.5">
                     Full Name *
                   </label>
                   <input
@@ -221,12 +221,12 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="e.g. Aarav Sharma"
-                    className="w-full px-3.5 py-2.5 bg-[#181818] border border-[#333333] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#FF9900]"
+                    className="w-full px-3.5 py-2.5 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#A855F7]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-purple-200 mb-1.5">
                     Email Address *
                   </label>
                   <input
@@ -235,14 +235,14 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="aarav@niu.ac.in"
-                    className="w-full px-3.5 py-2.5 bg-[#181818] border border-[#333333] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#FF9900]"
+                    className="w-full px-3.5 py-2.5 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#A855F7]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-purple-200 mb-1.5">
                     Phone / WhatsApp *
                   </label>
                   <input
@@ -251,12 +251,12 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+91 98765 43210"
-                    className="w-full px-3.5 py-2.5 bg-[#181818] border border-[#333333] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#FF9900]"
+                    className="w-full px-3.5 py-2.5 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#A855F7]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-purple-200 mb-1.5">
                     College / University *
                   </label>
                   <input
@@ -265,14 +265,14 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                     value={college}
                     onChange={(e) => setCollege(e.target.value)}
                     placeholder="Noida International University"
-                    className="w-full px-3.5 py-2.5 bg-[#181818] border border-[#333333] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#FF9900]"
+                    className="w-full px-3.5 py-2.5 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#A855F7]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-purple-200 mb-1.5">
                     Course & Academic Year *
                   </label>
                   <input
@@ -281,12 +281,12 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                     value={courseYear}
                     onChange={(e) => setCourseYear(e.target.value)}
                     placeholder="B.Tech CSE - 2nd Year"
-                    className="w-full px-3.5 py-2.5 bg-[#181818] border border-[#333333] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#FF9900]"
+                    className="w-full px-3.5 py-2.5 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#A855F7]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1.5">
+                  <label className="block text-[11px] font-medium uppercase tracking-wider text-purple-200 mb-1.5">
                     Student ID (Optional)
                   </label>
                   <input
@@ -294,19 +294,19 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                     value={collegeId}
                     onChange={(e) => setCollegeId(e.target.value)}
                     placeholder="e.g. NIU-2024-892"
-                    className="w-full px-3.5 py-2.5 bg-[#181818] border border-[#333333] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#FF9900]"
+                    className="w-full px-3.5 py-2.5 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#A855F7]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-300 mb-1.5">
+                <label className="block text-[11px] font-medium uppercase tracking-wider text-purple-200 mb-1.5">
                   How did you hear about this event? *
                 </label>
                 <select
                   value={hearAbout}
                   onChange={(e) => setHearAbout(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#181818] border border-[#333333] rounded-lg text-white text-xs focus:outline-none focus:border-[#FF9900]"
+                  className="w-full px-3.5 py-2.5 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs focus:outline-none focus:border-[#A855F7]"
                 >
                   <option value="Campus Announcement / Friends">Campus Announcement / Friends</option>
                   <option value="Meetup Group">Official Meetup Group</option>
@@ -318,8 +318,8 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
 
               {/* Custom Questions if configured */}
               {event.custom_questions && event.custom_questions.length > 0 && (
-                <div className="pt-2 border-t border-[#222222] space-y-3">
-                  <span className="text-[11px] font-bold text-[#FF9900] uppercase tracking-wider block">
+                <div className="pt-2 border-t border-[#24143D] space-y-3">
+                  <span className="text-[11px] font-bold text-[#C084FC] uppercase tracking-wider block">
                     Session Questions
                   </span>
                   {event.custom_questions.map((q) => (
@@ -332,7 +332,7 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                           required={q.required}
                           value={customAnswers[q.label] || ''}
                           onChange={(e) => setCustomAnswers({ ...customAnswers, [q.label]: e.target.value })}
-                          className="w-full px-3 py-2 bg-[#181818] border border-[#333333] rounded-lg text-white text-xs focus:outline-none focus:border-[#FF9900]"
+                          className="w-full px-3 py-2 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs focus:outline-none focus:border-[#A855F7]"
                         >
                           <option value="">Select an option...</option>
                           {q.options.map((opt) => (
@@ -346,7 +346,7 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                           value={customAnswers[q.label] || ''}
                           onChange={(e) => setCustomAnswers({ ...customAnswers, [q.label]: e.target.value })}
                           placeholder="Your answer"
-                          className="w-full px-3 py-2 bg-[#181818] border border-[#333333] rounded-lg text-white text-xs focus:outline-none focus:border-[#FF9900]"
+                          className="w-full px-3 py-2 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs focus:outline-none focus:border-[#A855F7]"
                         />
                       )}
                     </div>
@@ -362,9 +362,9 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                     required
                     checked={consent}
                     onChange={(e) => setConsent(e.target.checked)}
-                    className="w-4 h-4 rounded mt-0.5 text-[#FF9900] bg-[#181818] border-[#333333] focus:ring-[#FF9900]"
+                    className="w-4 h-4 rounded mt-0.5 text-purple-600 bg-[#180C36] border-[#24143D] focus:ring-purple-500"
                   />
-                  <span className="text-[11px] text-gray-400 leading-snug">
+                  <span className="text-[11px] text-gray-300 leading-snug">
                     I agree to be contacted by AWS SBG NIU organizers with session updates and logistics. (Learners 18+ only per AWS guidelines).
                   </span>
                 </label>
@@ -374,7 +374,7 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 px-4 rounded-lg bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer shadow-lg shadow-[#FF9900]/20 flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] hover:brightness-110 text-white text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer shadow-lg shadow-purple-900/30 flex items-center justify-center gap-2"
                 >
                   {loading ? 'Confirming RSVP...' : isFull ? 'Join Priority Waitlist' : 'Complete RSVP Now'}
                   <ArrowRight className="w-4 h-4" />
@@ -400,7 +400,7 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
               <h2 className="text-2xl font-bold font-heading text-white">
                 {successData.status === 'confirmed' ? 'See You at Noida International University!' : 'You Are in the Waitlist Queue'}
               </h2>
-              <p className="text-xs text-gray-400 mt-1 max-w-md mx-auto">
+              <p className="text-xs text-gray-300 mt-1 max-w-md mx-auto">
                 {successData.status === 'confirmed'
                   ? 'Your pass is confirmed. Keep your unique Registration Code handy during in-person check-in.'
                   : 'As soon as an attendee cancels or capacity is increased, your seat will be automatically confirmed.'}
@@ -408,12 +408,12 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
             </div>
 
             {/* Registration Code Display */}
-            <div className="p-4 bg-[#161616] border border-[#333333] rounded-xl max-w-sm mx-auto space-y-2">
-              <span className="text-[10px] text-gray-400 uppercase tracking-widest block font-medium">
+            <div className="p-4 bg-[#13092B] border border-[#24143D] rounded-xl max-w-sm mx-auto space-y-2">
+              <span className="text-[10px] text-purple-300 uppercase tracking-widest block font-medium">
                 Official Registration Code
               </span>
               <div className="flex items-center justify-center gap-2">
-                <span className="text-xl sm:text-2xl font-mono font-bold text-[#FF9900] tracking-wider select-all">
+                <span className="text-xl sm:text-2xl font-mono font-bold text-[#C084FC] tracking-wider select-all">
                   {successData.code}
                 </span>
                 <button
@@ -427,25 +427,25 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
             </div>
 
             {/* Session Logistics */}
-            <div className="bg-[#141414] border border-[#262626] rounded-xl p-4 text-left max-w-md mx-auto space-y-2 text-xs">
+            <div className="bg-[#13092B] border border-[#24143D] rounded-xl p-4 text-left max-w-md mx-auto space-y-2 text-xs">
               <div className="flex items-center gap-2 text-gray-300">
-                <Calendar className="w-4 h-4 text-[#FF9900] shrink-0" />
+                <Calendar className="w-4 h-4 text-[#C084FC] shrink-0" />
                 <span>{formatDate(successData.eventDate)} ({successData.startTime})</span>
               </div>
               <div className="flex items-center gap-2 text-gray-300">
-                <MapPin className="w-4 h-4 text-[#FF9900] shrink-0" />
+                <MapPin className="w-4 h-4 text-[#C084FC] shrink-0" />
                 <span>{successData.venue || 'Campus Auditorium, NIU'}</span>
               </div>
 
               {/* Private join link for online events */}
               {successData.joinLink && (
-                <div className="pt-2 border-t border-[#262626]">
-                  <span className="text-[10px] text-[#FF9900] uppercase font-bold block">Private Meeting Link:</span>
+                <div className="pt-2 border-t border-[#24143D]">
+                  <span className="text-[10px] text-[#C084FC] uppercase font-bold block">Private Meeting Link:</span>
                   <a
                     href={successData.joinLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-blue-400 hover:underline break-all"
+                    className="text-xs text-purple-300 hover:underline break-all"
                   >
                     {successData.joinLink}
                   </a>
@@ -459,16 +459,16 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
                 href={createGoogleCalendarUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-4 py-2.5 bg-[#1f1f1f] hover:bg-[#2a2a2a] border border-[#333] text-white text-xs font-semibold rounded-lg transition inline-flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-4 py-2.5 bg-[#180C36] hover:bg-[#201045] border border-[#24143D] text-white text-xs font-semibold rounded-lg transition inline-flex items-center justify-center gap-2"
               >
-                <Calendar className="w-3.5 h-3.5 text-[#FF9900]" />
+                <Calendar className="w-3.5 h-3.5 text-[#C084FC]" />
                 <span>Add to Google Calendar</span>
-                <ExternalLink className="w-3 h-3 text-gray-500" />
+                <ExternalLink className="w-3 h-3 text-purple-300/50" />
               </a>
 
               <Link
                 href={`/badge?name=${encodeURIComponent(successData.fullName)}&role=Attendee`}
-                className="w-full sm:w-auto px-4 py-2.5 bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider rounded-lg transition inline-flex items-center justify-center gap-2 shadow-md shadow-[#FF9900]/20"
+                className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] hover:brightness-110 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition inline-flex items-center justify-center gap-2 shadow-md shadow-purple-900/30"
               >
                 <span>Make Attendee Badge</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -478,7 +478,7 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
             <div className="pt-2">
               <button
                 onClick={onClose}
-                className="text-xs text-gray-400 hover:text-white underline underline-offset-4"
+                className="text-xs text-purple-300/70 hover:text-white underline underline-offset-4"
               >
                 Done / Close Window
               </button>
@@ -486,8 +486,8 @@ export function RegistrationModal({ event, isOpen, onClose }: RegistrationModalP
           </div>
         )}
 
-        <div className="mt-4 pt-3 border-t border-[#1F1F1F] text-center text-[11px] text-gray-500 flex items-center justify-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#FF9900]" />
+        <div className="mt-4 pt-3 border-t border-[#24143D] text-center text-[11px] text-gray-400 flex items-center justify-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#C084FC]" />
           <span>Registrations are secure and never made publicly visible.</span>
         </div>
       </div>

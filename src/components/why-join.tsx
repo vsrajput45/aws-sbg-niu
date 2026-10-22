@@ -20,13 +20,13 @@ export function WhyJoin({ config }: { config?: typeof siteConfig } = {}) {
   const { whyJoinCards } = cfg;
 
   return (
-    <section id="why-join" className="py-24 sm:py-32 bg-[#000000]/80 backdrop-blur-[2px] border-b border-[#262626]">
+    <section id="why-join" className="py-24 sm:py-32 bg-[#070312]/85 backdrop-blur-[2px] border-b border-[#231238]">
       <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 space-y-16">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#262626] bg-[#0A0A0A] px-3.5 py-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#FF9900]" />
-            <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-[#120829] px-3.5 py-1.5 shadow-sm shadow-purple-950/40">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#A855F7]" />
+            <span className="text-xs font-semibold text-purple-200 uppercase tracking-wider">
               Member Value
             </span>
           </div>
@@ -47,12 +47,12 @@ export function WhyJoin({ config }: { config?: typeof siteConfig } = {}) {
             return (
               <div
                 key={card.title}
-                className="bg-[#0D0D0D] border border-[#262626] rounded-xl p-5 hover:border-[#FF9900]/50 hover:bg-[#121212] transition-all duration-200 group space-y-3"
+                className="bg-[#0E0724] border border-[#24143D] rounded-xl p-5 hover:border-purple-500/50 hover:bg-[#140A30] transition-all duration-200 group space-y-3 shadow-md shadow-purple-950/20"
               >
-                <div className="w-10 h-10 rounded-lg bg-[#181818] border border-[#262626] flex items-center justify-center text-[#FF9900] group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-lg bg-[#180C36] border border-purple-900/50 flex items-center justify-center text-[#C084FC] group-hover:scale-110 transition-transform">
                   <Icon className="w-5 h-5" />
                 </div>
-                <h3 className="text-sm font-bold text-white font-heading group-hover:text-[#FF9900] transition-colors">
+                <h3 className="text-sm font-bold text-white font-heading group-hover:text-[#C084FC] transition-colors">
                   {card.title}
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-200 leading-relaxed font-normal">
@@ -64,13 +64,13 @@ export function WhyJoin({ config }: { config?: typeof siteConfig } = {}) {
         </div>
 
         {/* Founding Member Callout Band */}
-        <div className="relative rounded-2xl bg-[#111111] border border-[#FF9900]/40 p-8 sm:p-10 overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-[#FF9900]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative rounded-2xl bg-gradient-to-r from-[#14092E] via-[#0E0724] to-[#14092E] border border-purple-500/40 p-8 sm:p-10 overflow-hidden shadow-2xl shadow-purple-950/40">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="space-y-2 max-w-2xl">
-              <div className="flex items-center gap-2 text-xs font-bold text-[#FF9900] uppercase tracking-wider">
-                <Sparkles className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-xs font-bold text-[#C084FC] uppercase tracking-wider">
+                <Sparkles className="w-4 h-4 text-[#A855F7]" />
                 <span>Inaugural Cohort</span>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold font-heading text-white">
@@ -85,7 +85,7 @@ export function WhyJoin({ config }: { config?: typeof siteConfig } = {}) {
               href={cfg.meetupUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-6 py-3 rounded-lg bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg shadow-[#FF9900]/25 inline-flex items-center gap-2 shrink-0 cursor-pointer"
+              className="px-6 py-3 rounded-lg bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] hover:from-[#6D28D9] hover:to-[#9333EA] text-white text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg shadow-purple-600/30 inline-flex items-center gap-2 shrink-0 cursor-pointer"
             >
               <span>Be a Founding Member</span>
               <ExternalLink className="w-4 h-4" />

@@ -1,0 +1,78 @@
+import { cookies } from 'next/headers';
+import { db } from './db';
+import { UserRole } from './db/types';
+
+export interface AuthSession {
+  userId: string;
+  email: string;
+  role: UserRole;
+  expiresAt: number;
+}
+
+const SESSION_COOKIE_NAME = 'aws_sbg_session';
+
+export async function createSession(email: string, role: UserRole): Promise<AuthSession> {
+  const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+  const profile = db.getProfileByEmail(email);
+
+  const session: AuthSession = {
+    userId: profile ? profile.id : 'admin-user',
+    email,
+    role,
+    expiresAt,
+  };
+
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE_NAME, JSON.stringify(session), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60,
+  });
+
+  return session;
+}
+
+export async function getSession(): Promise<AuthSession | null> {
+  try {
+    const cookieStore = await cookies();
+    const cookie = cookieStore.get(SESSION_COOKIE_NAME);
+    if (!cookie || !cookie.value) return null;
+
+    const session: AuthSession = JSON.parse(cookie.value);
+    if (Date.now() > session.expiresAt) {
+      return null;
+    }
+    return session;
+  } catch {
+    return null;
+  }
+}
+
+export async function destroySession(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE_NAME);
+}
+
+export async function verifyCredentials(email: string, password: string): Promise<{ success: boolean; role?: UserRole; error?: string }> {
+  const normalizedEmail = email.trim().toLowerCase();
+  const profile = db.getProfileByEmail(normalizedEmail);
+
+  if (!profile) {
+    return { success: false, error: 'No admin or editor account found with this email.' };
+  }
+
+  const configuredPassword = process.env.ADMIN_PASSWORD;
+  if (!configuredPassword) {
+    console.error('CRITICAL: ADMIN_PASSWORD environment variable is not configured.');
+    return { success: false, error: 'Server authentication configuration missing. Please set ADMIN_PASSWORD in environment variables.' };
+  }
+
+  // Check password against securely configured environment variable
+  if (password === configuredPassword) {
+    return { success: true, role: profile.role };
+  }
+
+  return { success: false, error: 'Invalid password.' };
+}

@@ -1,7 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { EventRecord, RegistrationRecord, ProfileRecord, SiteSettingsRecord, TeamMemberRecord } from './types';
+import { 
+  EventRecord, 
+  RegistrationRecord, 
+  ProfileRecord, 
+  SiteSettingsRecord, 
+  TeamMemberRecord,
+  BadgeApplicationRecord,
+  BadgeStatus,
+  PaymentStatus
+} from './types';
 import { initialProfiles, sampleDraftEvent, initialRegistrations, initialTeamMembers } from './seed';
 
 interface DatabaseData {
@@ -10,6 +19,7 @@ interface DatabaseData {
   registrations: RegistrationRecord[];
   site_settings?: SiteSettingsRecord;
   team?: TeamMemberRecord[];
+  badges?: BadgeApplicationRecord[];
 }
 
 // In-memory cache for ultra-fast reads and fallback in serverless environments (Netlify, AWS Lambda)
@@ -55,6 +65,9 @@ export const defaultSiteSettings: SiteSettingsRecord = {
   linkedinUrl: "",
   twitterUrl: "",
   discordUrl: "",
+  upiId: "aws-sbg@niu",
+  upiName: "AWS SBG NIU",
+  upiQrImageUrl: "",
   speakerInterestForm: "https://forms.gle/placeholder-speaker-interest",
   sponsorForm: "https://forms.gle/placeholder-community-partnership",
   aboutHeadline: "Built by the Community, for the Community.",
@@ -129,6 +142,71 @@ function ensureDbFile(): DatabaseData {
     }
     if (!parsed.team || parsed.team.length === 0) {
       parsed.team = [...initialTeamMembers];
+      needsRewrite = true;
+    }
+    if (!parsed.badges) {
+      parsed.badges = [
+        {
+          id: 'bdg-sample-1',
+          code: 'NIU-AWS-2026-5645',
+          full_name: 'Aarav Sharma',
+          email: 'aarav.sharma@niu.ac.in',
+          role: 'Community Builder',
+          institution: 'Noida International University',
+          photo_url: null,
+          source: 'community_donation',
+          donation_amount: 99,
+          donation_utr: 'UPI/2026/89342918',
+          status: 'verified',
+          qr_payload: 'https://aws-sbg-niu.ac.in/verify/NIU-AWS-2026-5645',
+          access_level: 'Full Conference & Workshops',
+          theme: 'sbg',
+          verified_by: 'Admin',
+          verified_at: '2026-10-22T10:00:00.000Z',
+          created_at: '2026-10-22T09:30:00.000Z',
+          updated_at: '2026-10-22T10:00:00.000Z',
+        },
+        {
+          id: 'bdg-sample-2',
+          code: 'NIU-AWS-2026-8812',
+          full_name: 'Neha Sharma',
+          email: 'neha.sharma@niu.ac.in',
+          role: 'Official Attendee',
+          institution: 'Noida International University',
+          photo_url: null,
+          source: 'event_registration',
+          event_id: 'e1000000-0000-0000-0000-000000000001',
+          event_title: 'AWS Cloud Discovery Day & Hands-on Lab',
+          registration_code: 'NIUSBG-AWSCLO-ATT-Q6LI',
+          donation_amount: 0,
+          status: 'verified',
+          qr_payload: 'https://aws-sbg-niu.ac.in/verify/NIU-AWS-2026-8812',
+          access_level: 'Full Conference & Workshops',
+          theme: 'sbg',
+          verified_by: 'System (Event Match)',
+          verified_at: '2026-10-23T11:00:00.000Z',
+          created_at: '2026-10-23T11:00:00.000Z',
+          updated_at: '2026-10-23T11:00:00.000Z',
+        },
+        {
+          id: 'bdg-sample-3',
+          code: 'NIU-AWS-2026-3914',
+          full_name: 'Priyanshu Verma',
+          email: 'priyanshu.v@gmail.com',
+          role: 'Community Builder',
+          institution: 'Delhi Technological University',
+          photo_url: null,
+          source: 'community_donation',
+          donation_amount: 49,
+          donation_utr: 'UPI/2026/77102941',
+          status: 'pending',
+          qr_payload: 'https://aws-sbg-niu.ac.in/verify/NIU-AWS-2026-3914',
+          access_level: 'Full Conference & Workshops',
+          theme: 'classic',
+          created_at: '2026-10-23T14:15:00.000Z',
+          updated_at: '2026-10-23T14:15:00.000Z',
+        },
+      ];
       needsRewrite = true;
     }
 
@@ -280,6 +358,7 @@ export const dbStore = {
         certificate: eventData.certificate ?? true,
         contact_email: eventData.contact_email || 'community@niu.ac.in',
         custom_questions: eventData.custom_questions || [],
+        allowed_roles: eventData.allowed_roles || ['attendee', 'speaker', 'sponsor', 'volunteer'],
         created_by: eventData.created_by || 'admin',
         created_at: now,
         updated_at: now,
@@ -322,14 +401,36 @@ export const dbStore = {
 
   createRegistration(params: {
     eventId: string;
+    role?: 'attendee' | 'speaker' | 'sponsor' | 'volunteer';
     fullName: string;
     email: string;
     phone: string;
-    college: string;
-    courseYear: string;
+    college?: string;
+    courseYear?: string;
     collegeId?: string;
-    hearAbout: string;
+    hearAbout?: string;
     customAnswers?: Record<string, string>;
+
+    // Speaker fields
+    topicTitle?: string;
+    topicAbstract?: string;
+    speakerBio?: string;
+    portfolioOrLinkedin?: string;
+    previousSpeakingLinks?: string;
+
+    // Sponsor fields
+    companyName?: string;
+    companyWebsite?: string;
+    sponsorTierInterest?: string;
+    designation?: string;
+    sponsorshipNotes?: string;
+
+    // Volunteer fields
+    volunteerInterest?: string;
+    volunteerExperience?: string;
+
+    // Payment fields
+    paymentUtr?: string;
   }): { registration?: RegistrationRecord; error?: string; alreadyRegistered?: boolean } {
     const db = ensureDbFile();
     const event = db.events.find((e) => e.id === params.eventId);
@@ -355,10 +456,17 @@ export const dbStore = {
       return { error: 'Registration deadline has passed.' };
     }
 
-    // Duplicate check: (event_id, lower(email))
+    const role = params.role || 'attendee';
+
+    // Verify role is accepted by this event if allowed_roles is specified
+    if (event.allowed_roles && event.allowed_roles.length > 0 && !event.allowed_roles.includes(role)) {
+      return { error: `Registration for the '${role}' role is not open for this event.` };
+    }
+
+    // Duplicate check: (event_id, lower(email), role)
     const normalizedEmail = params.email.trim().toLowerCase();
     const existing = db.registrations.find(
-      (r) => r.event_id === params.eventId && r.email.toLowerCase() === normalizedEmail && r.status !== 'cancelled'
+      (r) => r.event_id === params.eventId && r.email.toLowerCase() === normalizedEmail && (r.role || 'attendee') === role && r.status !== 'cancelled'
     );
 
     if (existing) {
@@ -368,42 +476,66 @@ export const dbStore = {
       };
     }
 
-    // Capacity & Waitlist check
-    const currentConfirmed = db.registrations.filter(
-      (r) => r.event_id === params.eventId && r.status === 'confirmed'
-    ).length;
-
+    // Capacity & Waitlist check: strictly applies to Attendees
     let status: 'confirmed' | 'waitlisted' = 'confirmed';
-    if (event.capacity && currentConfirmed >= event.capacity) {
-      if (event.waitlist_enabled) {
-        status = 'waitlisted';
-      } else {
-        return { error: 'This event has reached full capacity and registration is closed.' };
+    if (role === 'attendee') {
+      const currentConfirmedAttendees = db.registrations.filter(
+        (r) => r.event_id === params.eventId && (r.role || 'attendee') === 'attendee' && r.status === 'confirmed'
+      ).length;
+
+      if (event.capacity && currentConfirmedAttendees >= event.capacity) {
+        if (event.waitlist_enabled) {
+          status = 'waitlisted';
+        } else {
+          return { error: 'This event has reached full capacity and attendee registration is closed.' };
+        }
       }
     }
 
     // Generate unique Registration Code
-    // Format: NIUSBG-<eventCode>-<suffix>
+    // Format: NIUSBG-<cleanSlug>-<roleCode>-<suffix>
     const cleanSlug = event.slug.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase();
-    const suffix = Math.random().toString(36).substring(2, 7).toUpperCase();
-    const registrationCode = `NIUSBG-${cleanSlug}-${suffix}`;
+    const roleCode = role === 'speaker' ? 'SPK' : role === 'sponsor' ? 'SPN' : role === 'volunteer' ? 'VOL' : 'ATT';
+    const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const registrationCode = `NIUSBG-${cleanSlug}-${roleCode}-${suffix}`;
 
     const newRegistration: RegistrationRecord = {
       id: `reg-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       event_id: params.eventId,
       registration_code: registrationCode,
+      role,
       full_name: params.fullName.trim(),
       email: normalizedEmail,
       phone: params.phone.trim(),
-      college: params.college.trim(),
-      course_year: params.courseYear.trim(),
+      college: (params.college || 'N/A').trim(),
+      course_year: (params.courseYear || 'N/A').trim(),
       college_id: params.collegeId ? params.collegeId.trim() : null,
-      hear_about: params.hearAbout,
+      hear_about: params.hearAbout || 'Community Announcement',
       custom_answers: params.customAnswers || {},
       status,
       checked_in: false,
       checked_in_at: null,
       created_at: new Date().toISOString(),
+
+      // Role-specific fields
+      topic_title: params.topicTitle?.trim() || null,
+      topic_abstract: params.topicAbstract?.trim() || null,
+      speaker_bio: params.speakerBio?.trim() || null,
+      portfolio_or_linkedin: params.portfolioOrLinkedin?.trim() || null,
+      previous_speaking_links: params.previousSpeakingLinks?.trim() || null,
+
+      company_name: params.companyName?.trim() || null,
+      company_website: params.companyWebsite?.trim() || null,
+      sponsor_tier_interest: params.sponsorTierInterest?.trim() || null,
+      designation: params.designation?.trim() || null,
+      sponsorship_notes: params.sponsorshipNotes?.trim() || null,
+
+      volunteer_interest: params.volunteerInterest?.trim() || null,
+      volunteer_experience: params.volunteerExperience?.trim() || null,
+
+      // Payment
+      payment_utr: params.paymentUtr?.trim() || null,
+      payment_status: params.paymentUtr ? 'pending' : (event.fee_type === 'paid' ? 'unpaid' : 'verified'),
     };
 
     db.registrations.push(newRegistration);
@@ -433,6 +565,23 @@ export const dbStore = {
     return reg;
   },
 
+  updatePaymentStatus(
+    registrationId: string, 
+    newPaymentStatus: 'verified' | 'unpaid' | 'pending' | 'refunded',
+    paymentUtr?: string
+  ): RegistrationRecord | null {
+    const db = ensureDbFile();
+    const reg = db.registrations.find((r) => r.id === registrationId);
+    if (!reg) return null;
+
+    reg.payment_status = newPaymentStatus;
+    if (paymentUtr !== undefined) {
+      reg.payment_utr = paymentUtr;
+    }
+    writeDbFile(db);
+    return reg;
+  },
+
   removeRegistration(registrationId: string): boolean {
     const db = ensureDbFile();
     const idx = db.registrations.findIndex((r) => r.id === registrationId);
@@ -441,9 +590,9 @@ export const dbStore = {
     const [removed] = db.registrations.splice(idx, 1);
 
     // If a confirmed attendee is removed, auto-promote waitlist #1 if waitlist is active
-    if (removed.status === 'confirmed') {
+    if (removed.status === 'confirmed' && (removed.role || 'attendee') === 'attendee') {
       const waitlisted = db.registrations
-        .filter((r) => r.event_id === removed.event_id && r.status === 'waitlisted')
+        .filter((r) => r.event_id === removed.event_id && (r.role || 'attendee') === 'attendee' && r.status === 'waitlisted')
         .sort((a, b) => a.created_at.localeCompare(b.created_at));
 
       if (waitlisted.length > 0) {
@@ -460,14 +609,14 @@ export const dbStore = {
     const event = db.events.find((e) => e.id === eventId);
     if (!event) return 0;
 
-    const confirmedCount = db.registrations.filter((r) => r.event_id === eventId && r.status === 'confirmed').length;
+    const confirmedCount = db.registrations.filter((r) => r.event_id === eventId && (r.role || 'attendee') === 'attendee' && r.status === 'confirmed').length;
     const capacity = event.capacity || 999999;
     const available = Math.max(0, capacity - confirmedCount);
 
     if (available <= 0) return 0;
 
     const waitlisted = db.registrations
-      .filter((r) => r.event_id === eventId && r.status === 'waitlisted')
+      .filter((r) => r.event_id === eventId && (r.role || 'attendee') === 'attendee' && r.status === 'waitlisted')
       .sort((a, b) => a.created_at.localeCompare(b.created_at));
 
     const toPromote = waitlisted.slice(0, available);
@@ -482,8 +631,8 @@ export const dbStore = {
   // Helper
   hydrateEvent(event: EventRecord, allRegistrations: RegistrationRecord[]): EventRecord {
     const eventRegs = allRegistrations.filter((r) => r.event_id === event.id);
-    const confirmedCount = eventRegs.filter((r) => r.status === 'confirmed').length;
-    const waitlistedCount = eventRegs.filter((r) => r.status === 'waitlisted').length;
+    const confirmedCount = eventRegs.filter((r) => (r.role || 'attendee') === 'attendee' && r.status === 'confirmed').length;
+    const waitlistedCount = eventRegs.filter((r) => (r.role || 'attendee') === 'attendee' && r.status === 'waitlisted').length;
 
     return {
       ...event,
@@ -625,5 +774,143 @@ export const dbStore = {
     db.team = [...initialTeamMembers];
     writeDbFile(db);
     return [...db.team];
+  },
+
+  // -------------------------------------------------------------
+  // Badge Applications & Verification Management
+  // -------------------------------------------------------------
+  getAllBadges(): BadgeApplicationRecord[] {
+    const db = ensureDbFile();
+    return [...(db.badges || [])].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  },
+
+  getBadgeByCode(code: string): BadgeApplicationRecord | undefined {
+    const db = ensureDbFile();
+    return db.badges?.find((b) => b.code && b.code.toLowerCase() === code.trim().toLowerCase());
+  },
+
+  getBadgeByEmail(email: string): BadgeApplicationRecord | undefined {
+    const db = ensureDbFile();
+    return db.badges?.find((b) => b.email.toLowerCase() === email.trim().toLowerCase());
+  },
+
+  getRegistrationByEmail(email: string): RegistrationRecord | undefined {
+    const db = ensureDbFile();
+    return db.registrations?.find((r) => r.email.toLowerCase() === email.trim().toLowerCase());
+  },
+
+  createBadgeApplication(data: Partial<BadgeApplicationRecord> & { full_name: string; email: string; role: string; institution: string }): BadgeApplicationRecord {
+    const db = ensureDbFile();
+    if (!db.badges) db.badges = [];
+
+    const now = new Date().toISOString();
+    // Check if already applied
+    const existing = db.badges.find((b) => b.email.toLowerCase() === data.email.trim().toLowerCase());
+    if (existing) {
+      existing.updated_at = now;
+      if (data.theme) existing.theme = data.theme;
+      if (data.photo_url !== undefined) existing.photo_url = data.photo_url;
+      if (data.access_level) existing.access_level = data.access_level;
+      if (data.full_name) existing.full_name = data.full_name;
+      if (data.institution) existing.institution = data.institution;
+      if (data.role && existing.status !== 'verified') existing.role = data.role;
+      if (data.source) existing.source = data.source;
+      if (data.donation_amount !== undefined && data.donation_amount !== null) existing.donation_amount = data.donation_amount;
+      if (data.donation_utr) existing.donation_utr = data.donation_utr;
+      if (data.event_id) existing.event_id = data.event_id;
+      if (data.event_title) existing.event_title = data.event_title;
+      if (data.registration_code) existing.registration_code = data.registration_code;
+      writeDbFile(db);
+      return existing;
+    }
+
+    const code = data.code || null;
+    const id = data.id || `bdg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const qrPayload = data.qr_payload || (code ? `https://aws-sbg-niu.ac.in/verify/${code}` : null);
+
+    const newBadge: BadgeApplicationRecord = {
+      id,
+      code,
+      full_name: data.full_name,
+      email: data.email.trim().toLowerCase(),
+      role: data.role,
+      institution: data.institution || 'Noida International University',
+      photo_url: data.photo_url || null,
+      source: data.source || 'community_donation',
+      event_id: data.event_id || null,
+      event_title: data.event_title || null,
+      registration_code: data.registration_code || null,
+      donation_amount: data.donation_amount ?? null,
+      donation_utr: data.donation_utr || null,
+      status: data.status || 'pending',
+      qr_payload: qrPayload,
+      access_level: data.access_level || 'Full Conference & Workshops',
+      theme: data.theme || 'sbg',
+      verified_by: data.verified_by || null,
+      verified_at: data.verified_at || null,
+      created_at: now,
+      updated_at: now,
+    };
+
+    db.badges.push(newBadge);
+    writeDbFile(db);
+    return newBadge;
+  },
+
+  issueBadgeCode(id: string, code: string, verified_by: string, baseUrl?: string): BadgeApplicationRecord | null {
+    const db = ensureDbFile();
+    if (!db.badges) return null;
+    const badge = db.badges.find((b) => b.id === id);
+    if (!badge) return null;
+
+    const now = new Date().toISOString();
+    const cleanCode = code.trim().toUpperCase();
+    const domain = (baseUrl || 'https://aws-sbg-niu.ac.in').replace(/\/$/, '');
+
+    badge.code = cleanCode;
+    badge.qr_payload = `${domain}/verify/${cleanCode}`;
+    badge.status = 'verified';
+    badge.verified_by = verified_by || 'Admin';
+    badge.verified_at = now;
+    badge.updated_at = now;
+
+    writeDbFile(db);
+    return badge;
+  },
+
+  updateBadgeStatus(id: string, status: BadgeStatus, verified_by?: string, code?: string, baseUrl?: string): BadgeApplicationRecord | null {
+    const db = ensureDbFile();
+    if (!db.badges) return null;
+    const badge = db.badges.find((b) => b.id === id || b.code === id);
+    if (!badge) return null;
+
+    const now = new Date().toISOString();
+    badge.status = status;
+    badge.updated_at = now;
+
+    if (code) {
+      const cleanCode = code.trim().toUpperCase();
+      badge.code = cleanCode;
+      const domain = (baseUrl || 'https://aws-sbg-niu.ac.in').replace(/\/$/, '');
+      badge.qr_payload = `${domain}/verify/${cleanCode}`;
+    }
+
+    if (status === 'verified') {
+      badge.verified_at = now;
+      badge.verified_by = verified_by || 'Admin';
+    }
+
+    writeDbFile(db);
+    return badge;
+  },
+
+  deleteBadge(id: string): boolean {
+    const db = ensureDbFile();
+    if (!db.badges) return false;
+    const idx = db.badges.findIndex((b) => b.id === id || b.code === id);
+    if (idx === -1) return false;
+    db.badges.splice(idx, 1);
+    writeDbFile(db);
+    return true;
   },
 };

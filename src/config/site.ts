@@ -30,6 +30,11 @@ export const siteConfig = {
   linkedinUrl: "",  // Kept empty at launch to prevent linking personal profile
   twitterUrl: "",   // Kept empty at launch
 
+  // Official UPI & Payment details (Configurable via Admin Console)
+  upiId: "aws-sbg@niu",
+  upiName: "AWS SBG NIU",
+  upiQrImageUrl: "",
+
   // Meetup-registered focus areas
   focusAreas: [
     {

@@ -47,3 +47,18 @@ export function getRegistrationStatusBadge(status: string) {
       return { label: status, className: 'bg-gray-500/10 text-gray-400 border-gray-500/30' };
   }
 }
+
+export function getRegistrationRoleBadge(role: string = 'attendee') {
+  switch (role) {
+    case 'speaker':
+      return { label: 'Speaker', icon: 'mic', className: 'bg-purple-500/15 text-purple-300 border-purple-500/40' };
+    case 'sponsor':
+      return { label: 'Sponsor', icon: 'sparkles', className: 'bg-amber-500/15 text-amber-300 border-amber-500/40' };
+    case 'volunteer':
+      return { label: 'Volunteer', icon: 'heart', className: 'bg-teal-500/15 text-teal-300 border-teal-500/40' };
+    case 'attendee':
+    default:
+      return { label: 'Attendee', icon: 'user', className: 'bg-blue-500/15 text-blue-300 border-blue-500/40' };
+  }
+}
+

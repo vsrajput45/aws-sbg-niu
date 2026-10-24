@@ -1,5 +1,9 @@
 import Link from 'next/link';
-import { Calendar, Users, PlusCircle, Clock, UserCheck, Settings, Globe, ArrowRight, ChevronRight, CheckCircle } from 'lucide-react';
+import { 
+  Calendar, Users, PlusCircle, Clock, UserCheck, Settings, 
+  Globe, ArrowRight, ChevronRight, CheckCircle, Mic, Sparkles, 
+  HeartHandshake, GraduationCap, Award 
+} from 'lucide-react';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { AdminNav } from '@/components/admin/admin-nav';
@@ -21,6 +25,8 @@ export default async function AdminDashboardPage() {
   const allRegistrations = db.getAllRegistrations();
   const siteSettings = db.getSiteSettings();
   const teamMembers = db.getTeamMembers();
+  const allBadges = db.getAllBadges();
+  const pendingBadges = allBadges.filter((b) => b.status === 'pending' || !b.code);
 
   // Metrics
   const totalEvents = allEvents.length;
@@ -28,6 +34,11 @@ export default async function AdminDashboardPage() {
   const upcomingEvents = allEvents.filter((e) => e.event_date >= today && e.status === 'published');
   const totalRegistrations = allRegistrations.length;
   
+  const attendeesCount = allRegistrations.filter((r) => (r.role || 'attendee') === 'attendee').length;
+  const speakersCount = allRegistrations.filter((r) => r.role === 'speaker').length;
+  const sponsorsCount = allRegistrations.filter((r) => r.role === 'sponsor').length;
+  const volunteersCount = allRegistrations.filter((r) => r.role === 'volunteer').length;
+
   const oneWeekAgo = getSevenDaysAgoIso();
   const registrationsThisWeek = allRegistrations.filter((r) => r.created_at >= oneWeekAgo).length;
 
@@ -42,11 +53,19 @@ export default async function AdminDashboardPage() {
             <span className="text-xs font-bold text-[#FF9900] uppercase tracking-wider">Community Management</span>
             <h1 className="text-2xl sm:text-3xl font-bold text-white font-heading mt-1">Organizer Dashboard</h1>
             <p className="text-xs text-gray-400 mt-1">
-              Overview of events, attendance rosters, and community engagement.
+              Overview of events, attendance rosters, credential passes, and community engagement.
             </p>
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
+            <Link
+              href="/admin/badges"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#181818] hover:bg-[#222222] border border-[#333333] text-gray-200 hover:text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition"
+            >
+              <Award className="w-4 h-4 text-[#FF9900]" />
+              <span>Badges ({allBadges.length}{pendingBadges.length > 0 ? ` • ${pendingBadges.length} Pending` : ''})</span>
+            </Link>
+
             <Link
               href="/admin/team"
               className="inline-flex items-center gap-2 px-4 py-2 bg-[#181818] hover:bg-[#222222] border border-[#333333] text-gray-200 hover:text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition"
@@ -74,7 +93,39 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Quick Action Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Badge Verification Card */}
+          <div className="p-5 rounded-xl bg-gradient-to-r from-[#141414] via-[#121212] to-[#141414] border border-[#2B2B2B] flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="p-3 rounded-lg bg-[#FF9900]/10 border border-[#FF9900]/30 text-[#FF9900] shrink-0">
+                <Award className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-white font-heading">
+                    Badge Verification
+                  </span>
+                  {pendingBadges.length > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                      {pendingBadges.length} Pending
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Approve and issue pass codes for conference delegates &amp; donors.
+                </p>
+              </div>
+            </div>
+
+            <Link
+              href="/admin/badges"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider transition shadow-md shadow-[#FF9900]/20 shrink-0"
+            >
+              <span>Verify</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
           {/* Core Team Management Card */}
           <div className="p-5 rounded-xl bg-gradient-to-r from-[#141414] via-[#121212] to-[#141414] border border-[#2B2B2B] flex items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
@@ -98,7 +149,7 @@ export default async function AdminDashboardPage() {
 
             <Link
               href="/admin/team"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider transition shadow-md shadow-[#FF9900]/20 shrink-0"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#181818] hover:bg-[#222222] border border-[#333333] text-white text-xs font-semibold uppercase tracking-wider transition shrink-0"
             >
               <span>Manage</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -117,7 +168,7 @@ export default async function AdminDashboardPage() {
                     Live Web Page Details
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[260px]">
+                <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[200px]">
                   {siteSettings.chapterName} • {siteSettings.campusVenue}
                 </p>
               </div>
@@ -177,6 +228,65 @@ export default async function AdminDashboardPage() {
             </div>
             <p className="text-2xl sm:text-3xl font-bold text-white font-heading mt-3">{registrationsThisWeek}</p>
             <span className="text-[11px] text-gray-500 mt-1 block">New RSVPs this week</span>
+          </div>
+        </div>
+
+        {/* Multi-Role Registration Distribution Card */}
+        <div className="p-4 sm:p-5 rounded-xl bg-[#111111] border border-[#262626] space-y-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 className="text-xs font-bold text-gray-200 uppercase tracking-wider">
+                Registration Breakdown by Role
+              </h3>
+              <p className="text-[11px] text-gray-400 mt-0.5">
+                Distribution of community applicants across active roles.
+              </p>
+            </div>
+            <span className="text-xs font-mono font-semibold text-[#FF9900]">
+              Total Records: {totalRegistrations}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+            <div className="p-3 bg-[#161616] border border-[#262626] rounded-lg flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                <GraduationCap className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-[10px] text-gray-400 uppercase font-semibold block">Attendees</span>
+                <span className="text-lg font-bold text-white font-heading">{attendeesCount}</span>
+              </div>
+            </div>
+
+            <div className="p-3 bg-[#161616] border border-[#262626] rounded-lg flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+                <Mic className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-[10px] text-gray-400 uppercase font-semibold block">Speakers</span>
+                <span className="text-lg font-bold text-white font-heading">{speakersCount}</span>
+              </div>
+            </div>
+
+            <div className="p-3 bg-[#161616] border border-[#262626] rounded-lg flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-[10px] text-gray-400 uppercase font-semibold block">Sponsors</span>
+                <span className="text-lg font-bold text-white font-heading">{sponsorsCount}</span>
+              </div>
+            </div>
+
+            <div className="p-3 bg-[#161616] border border-[#262626] rounded-lg flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-teal-500/10 text-teal-400">
+                <HeartHandshake className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-[10px] text-gray-400 uppercase font-semibold block">Volunteers</span>
+                <span className="text-lg font-bold text-white font-heading">{volunteersCount}</span>
+              </div>
+            </div>
           </div>
         </div>
 

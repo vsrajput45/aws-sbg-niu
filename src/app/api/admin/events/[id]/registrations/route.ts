@@ -63,5 +63,14 @@ export async function POST(
     return NextResponse.json({ success: true, promotedCount });
   }
 
+  if (action === 'updatePaymentStatus') {
+    const { newPaymentStatus, paymentUtr } = body;
+    if (!registrationId || !newPaymentStatus) {
+      return NextResponse.json({ error: 'Registration ID and newPaymentStatus required' }, { status: 400 });
+    }
+    const updated = db.updatePaymentStatus(registrationId, newPaymentStatus, paymentUtr);
+    return NextResponse.json({ success: true, registration: updated });
+  }
+
   return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
 }

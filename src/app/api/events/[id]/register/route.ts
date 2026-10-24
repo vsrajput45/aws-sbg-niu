@@ -67,6 +67,7 @@ export async function POST(
     // Process registration deterministically
     const result = db.createRegistration({
       eventId: id,
+      role: data.role,
       fullName: data.fullName,
       email: data.email,
       phone: data.phone,
@@ -75,6 +76,24 @@ export async function POST(
       collegeId: data.collegeId,
       hearAbout: data.hearAbout,
       customAnswers: data.customAnswers as Record<string, string> | undefined,
+
+      // Role fields
+      topicTitle: data.topicTitle,
+      topicAbstract: data.topicAbstract,
+      speakerBio: data.speakerBio,
+      portfolioOrLinkedin: data.portfolioOrLinkedin,
+      previousSpeakingLinks: data.previousSpeakingLinks,
+
+      companyName: data.companyName,
+      companyWebsite: data.companyWebsite,
+      sponsorTierInterest: data.sponsorTierInterest,
+      designation: data.designation,
+      sponsorshipNotes: data.sponsorshipNotes,
+
+      volunteerInterest: data.volunteerInterest,
+      volunteerExperience: data.volunteerExperience,
+
+      paymentUtr: data.paymentUtr,
     });
 
     if (result.error) {
@@ -85,9 +104,10 @@ export async function POST(
       return NextResponse.json({
         success: true,
         alreadyRegistered: true,
-        message: "You're already registered for this event!",
+        message: `You're already registered as ${result.registration.role || 'an attendee'} for this event!`,
         registration: {
           code: result.registration.registration_code,
+          role: result.registration.role || 'attendee',
           status: result.registration.status,
           fullName: result.registration.full_name,
           email: result.registration.email,
@@ -103,12 +123,12 @@ export async function POST(
 
     const reg = result.registration!;
     
-    // Calculate waitlist position if applicable
+    // Calculate waitlist position if applicable (attendees only)
     let waitlistPosition: number | null = null;
     if (reg.status === 'waitlisted') {
       const allRegs = db.getRegistrationsForEvent(id);
       const waitlistQueue = allRegs
-        .filter((r) => r.status === 'waitlisted')
+        .filter((r) => (r.role || 'attendee') === 'attendee' && r.status === 'waitlisted')
         .sort((a, b) => a.created_at.localeCompare(b.created_at));
       waitlistPosition = waitlistQueue.findIndex((r) => r.id === reg.id) + 1;
     }
@@ -117,6 +137,7 @@ export async function POST(
       success: true,
       registration: {
         code: reg.registration_code,
+        role: reg.role,
         status: reg.status,
         fullName: reg.full_name,
         email: reg.email,

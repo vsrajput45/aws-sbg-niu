@@ -95,6 +95,8 @@ CREATE TABLE IF NOT EXISTS public.registrations (
   hear_about TEXT NOT NULL,
   custom_answers JSONB NOT NULL DEFAULT '{}'::jsonb,
   status TEXT NOT NULL CHECK (status IN ('confirmed', 'waitlisted', 'cancelled')) DEFAULT 'confirmed',
+  payment_utr TEXT,
+  payment_status TEXT CHECK (payment_status IN ('unpaid', 'pending', 'verified')) DEFAULT 'verified',
   checked_in BOOLEAN NOT NULL DEFAULT false,
   checked_in_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

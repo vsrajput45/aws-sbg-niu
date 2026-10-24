@@ -20,7 +20,7 @@ export const initialProfiles: ProfileRecord[] = [
 export const sampleDraftEvent: EventRecord = {
   id: 'e1000000-0000-0000-0000-000000000001',
   slug: 'aws-cloud-discovery-day-niu',
-  title: '[SAMPLE DRAFT] AWS Cloud Discovery Day & Hands-on Lab',
+  title: 'AWS Cloud Discovery Day & Hands-on Lab',
   summary: 'Hands-on foundational workshop exploring AWS core services, Serverless architecture, and building your first cloud app on AWS.',
   description_md: `### Welcome to AWS Cloud Discovery Day!
 
@@ -40,8 +40,9 @@ This foundational, student-focused technical session is curated to introduce you
   banner_url: '/hero.jpg',
   category: 'Technical Workshop',
   tags: ['AWS Lambda', 'Serverless', 'Cloud Foundations', 'Hands-on Lab'],
-  status: 'draft', // DRAFT - UNPUBLISHED! Will not appear on public site until published
+  status: 'published',
   featured: true,
+  allowed_roles: ['attendee', 'speaker', 'sponsor', 'volunteer'],
   event_date: '2026-11-20',
   start_time: '10:00 AM',
   end_time: '03:00 PM',

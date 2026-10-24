@@ -7,7 +7,7 @@ import {
   Calendar, Clock, MapPin, Users, Plus, Trash2, ArrowLeft, 
   Save, Eye, CheckCircle2, AlertTriangle, Sparkles 
 } from 'lucide-react';
-import { EventRecord, EventSpeaker, EventAgendaItem, CustomQuestion } from '@/lib/db/types';
+import { EventRecord, EventSpeaker, EventAgendaItem, CustomQuestion, RegistrationRole } from '@/lib/db/types';
 import { siteConfig } from '@/config/site';
 
 interface EventFormProps {
@@ -57,6 +57,11 @@ export function EventForm({ initialEvent, isEdit = false }: EventFormProps) {
   const [feeType, setFeeType] = useState<'free' | 'paid'>(initialEvent?.fee_type || 'free');
   const [feeNote, setFeeNote] = useState(initialEvent?.fee_note || '');
   const [paymentLink, setPaymentLink] = useState(initialEvent?.payment_link || '');
+  const [allowedRoles, setAllowedRoles] = useState<RegistrationRole[]>(
+    initialEvent?.allowed_roles && initialEvent.allowed_roles.length > 0
+      ? initialEvent.allowed_roles
+      : ['attendee', 'speaker', 'sponsor', 'volunteer']
+  );
 
   // Extras
   const [prerequisites, setPrerequisites] = useState(initialEvent?.prerequisites || '');
@@ -68,13 +73,28 @@ export function EventForm({ initialEvent, isEdit = false }: EventFormProps) {
   const [status, setStatus] = useState<'draft' | 'published' | 'cancelled' | 'completed'>(initialEvent?.status || 'draft');
 
   // Speakers list
-  const [speakers, setSpeakers] = useState<EventSpeaker[]>(initialEvent?.speakers || []);
+  const [speakers, setSpeakers] = useState<EventSpeaker[]>(() => {
+    return (initialEvent?.speakers || []).map((s, idx) => ({
+      ...s,
+      id: s.id || `sp-${Date.now()}-${idx}`,
+    }));
+  });
 
   // Agenda items
-  const [agenda, setAgenda] = useState<EventAgendaItem[]>(initialEvent?.agenda || []);
+  const [agenda, setAgenda] = useState<EventAgendaItem[]>(() => {
+    return (initialEvent?.agenda || []).map((ag, idx) => ({
+      ...ag,
+      id: ag.id || `ag-${Date.now()}-${idx}`,
+    }));
+  });
 
   // Custom questions (max 3)
-  const [customQuestions, setCustomQuestions] = useState<CustomQuestion[]>(initialEvent?.custom_questions || []);
+  const [customQuestions, setCustomQuestions] = useState<CustomQuestion[]>(() => {
+    return (initialEvent?.custom_questions || []).map((q, idx) => ({
+      ...q,
+      id: q.id || `q-${Date.now()}-${idx}`,
+    }));
+  });
 
   // State
   const [loading, setLoading] = useState(false);
@@ -100,7 +120,7 @@ export function EventForm({ initialEvent, isEdit = false }: EventFormProps) {
   // Speaker helpers
   const addSpeaker = () => {
     const newSpeaker: EventSpeaker = {
-      id: `sp-${Date.now()}`,
+      id: `sp-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       event_id: initialEvent?.id || '',
       name: '',
       role: '',
@@ -127,13 +147,13 @@ export function EventForm({ initialEvent, isEdit = false }: EventFormProps) {
   // Agenda helpers
   const addAgendaItem = () => {
     const newItem: EventAgendaItem = {
-      id: `ag-${Date.now()}`,
+      id: `ag-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       event_id: initialEvent?.id || '',
       start_label: '10:00 AM',
       end_label: '11:00 AM',
       title: '',
       description: '',
-      speaker_id: speakers.length > 0 ? speakers[0].id : null,
+      speaker_id: speakers.length > 0 ? (speakers[0].id || null) : null,
       tag: 'Session',
       sort_order: agenda.length + 1,
     };
@@ -154,7 +174,7 @@ export function EventForm({ initialEvent, isEdit = false }: EventFormProps) {
   const addCustomQuestion = () => {
     if (customQuestions.length >= 3) return;
     const newQ: CustomQuestion = {
-      id: `q-${Date.now()}`,
+      id: `q-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       label: '',
       type: 'text',
       options: [],
@@ -205,8 +225,16 @@ export function EventForm({ initialEvent, isEdit = false }: EventFormProps) {
         meetup_event_url: meetupEventUrl || null,
         capacity: capacity ? parseInt(capacity, 10) : null,
         waitlist_enabled: waitlistEnabled,
-        registration_opens_at: registrationOpensAt ? new Date(registrationOpensAt).toISOString() : null,
-        registration_deadline: registrationDeadline ? new Date(registrationDeadline).toISOString() : null,
+        registration_opens_at: (() => {
+          if (!registrationOpensAt) return null;
+          const d = new Date(registrationOpensAt);
+          return isNaN(d.getTime()) ? null : d.toISOString();
+        })(),
+        registration_deadline: (() => {
+          if (!registrationDeadline) return null;
+          const d = new Date(registrationDeadline);
+          return isNaN(d.getTime()) ? null : d.toISOString();
+        })(),
         registration_manual_state: registrationManualState,
         fee_type: feeType,
         fee_note: feeNote || null,
@@ -216,6 +244,7 @@ export function EventForm({ initialEvent, isEdit = false }: EventFormProps) {
         certificate,
         contact_email: contactEmail,
         custom_questions: customQuestions,
+        allowed_roles: allowedRoles,
         speakers,
         agenda,
       };
@@ -892,12 +921,15 @@ export function EventForm({ initialEvent, isEdit = false }: EventFormProps) {
                       onChange={(e) => updateAgendaItem(idx, 'speaker_id', e.target.value || null)}
                       className="w-full px-3 py-1.5 bg-[#1c1c1c] border border-[#333] rounded text-white text-xs"
                     >
-                      <option value="">No Speaker / General</option>
-                      {speakers.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.name || 'Unnamed Speaker'}
-                        </option>
-                      ))}
+                      <option key="no-speaker" value="">No Speaker / General</option>
+                      {speakers.map((s, sIdx) => {
+                        const speakerKey = `agenda-speaker-opt-${idx}-${s.id || sIdx}-${sIdx}`;
+                        return (
+                          <option key={speakerKey} value={s.id || ''}>
+                            {s.name || `Speaker ${sIdx + 1}`}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
 
@@ -985,6 +1017,58 @@ export function EventForm({ initialEvent, isEdit = false }: EventFormProps) {
               />
             </div>
           )}
+
+          {/* Accepted Registration Roles */}
+          <div className="md:col-span-3 p-4 bg-[#161616] border border-[#2B2B2B] rounded-xl space-y-3">
+            <label className="block text-xs font-bold text-[#FF9900] uppercase tracking-wider">
+              Accepted Registration Roles (Public Portal)
+            </label>
+            <p className="text-[11px] text-gray-400">
+              Select which roles visitors are permitted to register under for this event.
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+              {[
+                { id: 'attendee' as RegistrationRole, label: 'Attendees', desc: 'General & Workshop Pass' },
+                { id: 'speaker' as RegistrationRole, label: 'Speakers', desc: 'Call for Speakers Proposals' },
+                { id: 'sponsor' as RegistrationRole, label: 'Sponsors', desc: 'Sponsorship Inquiries' },
+                { id: 'volunteer' as RegistrationRole, label: 'Volunteers', desc: 'Event Crew Applications' },
+              ].map((role) => {
+                const checked = allowedRoles.includes(role.id);
+                return (
+                  <label 
+                    key={role.id}
+                    className={`p-3 rounded-lg border text-left cursor-pointer transition flex items-start gap-2.5 select-none ${
+                      checked 
+                        ? 'bg-[#1E1405] border-[#FF9900]/50 text-white' 
+                        : 'bg-[#141414] border-[#2E2E2E] text-gray-400 hover:text-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setAllowedRoles([...allowedRoles, role.id]);
+                        } else {
+                          if (allowedRoles.length === 1) {
+                            alert('At least one role must be allowed for registration.');
+                            return;
+                          }
+                          setAllowedRoles(allowedRoles.filter((r) => r !== role.id));
+                        }
+                      }}
+                      className="w-4 h-4 rounded text-[#FF9900] bg-[#181818] border-[#333333] focus:ring-[#FF9900] mt-0.5"
+                    />
+                    <div>
+                      <div className="text-xs font-bold">{role.label}</div>
+                      <div className="text-[10px] text-gray-500 mt-0.5">{role.desc}</div>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
 
           <div className="flex items-center gap-3">
             <input

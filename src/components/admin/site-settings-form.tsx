@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { 
   Building2, MapPin, Globe, Share2, Sparkles, FileText, 
-  Save, RotateCcw, ExternalLink, CheckCircle2, AlertCircle, Loader2 
+  Save, RotateCcw, ExternalLink, CheckCircle2, AlertCircle, Loader2, IndianRupee 
 } from 'lucide-react';
 import { SiteSettingsRecord } from '@/lib/db/types';
 
@@ -17,7 +17,7 @@ export function SiteSettingsForm({ initialSettings }: SiteSettingsFormProps) {
   const [marqueeInput, setMarqueeInput] = useState<string>(
     initialSettings.marqueeTopics ? initialSettings.marqueeTopics.join(', ') : ''
   );
-  const [activeTab, setActiveTab] = useState<'branding' | 'venue' | 'socials' | 'about' | 'forms'>('branding');
+  const [activeTab, setActiveTab] = useState<'branding' | 'venue' | 'socials' | 'about' | 'forms' | 'payment'>('branding');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -100,6 +100,7 @@ export function SiteSettingsForm({ initialSettings }: SiteSettingsFormProps) {
     { id: 'branding', label: 'Branding & Identity', icon: Building2 },
     { id: 'venue', label: 'Venue & Location', icon: MapPin },
     { id: 'socials', label: 'Social & Communication', icon: Share2 },
+    { id: 'payment', label: 'UPI & Payments', icon: IndianRupee },
     { id: 'about', label: 'About & Marquee', icon: Sparkles },
     { id: 'forms', label: 'External Forms (CFP & Sponsors)', icon: FileText },
   ] as const;
@@ -594,6 +595,72 @@ export function SiteSettingsForm({ initialSettings }: SiteSettingsFormProps) {
                 />
                 <span className="text-[11px] text-gray-500 block">
                   Used by the tier action buttons on the <Link href="/sponsors" target="_blank" className="text-[#FF9900] underline">/sponsors</Link> page.
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 6: UPI & Payments */}
+        {activeTab === 'payment' && (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-sm font-bold text-white font-heading">Official UPI & Community Payment Settings</h3>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Configure the receiving UPI details and QR codes shown to attendees during paid event registration and community supporter pass contributions.
+              </p>
+            </div>
+
+            <div className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-300">
+                    Official Receiving UPI ID *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.upiId || ''}
+                    onChange={(e) => handleChange('upiId', e.target.value)}
+                    className="w-full bg-[#161616] border border-[#2B2B2B] rounded-lg px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#FF9900]"
+                    placeholder="e.g. aws-sbg@niu or organizer@okhdfcbank"
+                  />
+                  <span className="text-[11px] text-gray-500 block">
+                    All dynamic QR codes and mobile UPI deep links will send payments directly to this UPI ID.
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-300">
+                    Payee / Account Display Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.upiName || ''}
+                    onChange={(e) => handleChange('upiName', e.target.value)}
+                    className="w-full bg-[#161616] border border-[#2B2B2B] rounded-lg px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#FF9900]"
+                    placeholder="e.g. AWS SBG NIU or Noida International University"
+                  />
+                  <span className="text-[11px] text-gray-500 block">
+                    Displayed in the attendee's Google Pay / PhonePe / Paytm payment screen.
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wider text-gray-300">
+                  Custom Static QR Image URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  value={formData.upiQrImageUrl || ''}
+                  onChange={(e) => handleChange('upiQrImageUrl', e.target.value)}
+                  className="w-full bg-[#161616] border border-[#2B2B2B] rounded-lg px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#FF9900]"
+                  placeholder="Leave empty to use automatic dynamic QR code, or paste image URL"
+                />
+                <span className="text-[11px] text-gray-500 block">
+                  If left empty, a crisp dynamic vector QR code will be generated automatically for the exact amount due.
                 </span>
               </div>
             </div>

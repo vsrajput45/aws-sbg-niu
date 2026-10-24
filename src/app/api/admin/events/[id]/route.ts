@@ -52,10 +52,18 @@ export async function PUT(
 
     return NextResponse.json({ success: true, event: saved });
   } catch (error: unknown) {
-    if (error && typeof error === 'object' && 'errors' in error) {
-      return NextResponse.json({ error: 'Validation failed', details: (error as { errors: unknown }).errors }, { status: 400 });
+    if (error && typeof error === 'object') {
+      if ('issues' in error) {
+        const issues = (error as { issues: Array<{ message: string }> }).issues;
+        const msg = issues.map((i) => i.message).join(', ');
+        return NextResponse.json({ error: msg || 'Validation failed', details: issues }, { status: 400 });
+      }
+      if ('errors' in error) {
+        return NextResponse.json({ error: 'Validation failed', details: (error as { errors: unknown }).errors }, { status: 400 });
+      }
     }
-    return NextResponse.json({ error: 'Failed to update event' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to update event';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 

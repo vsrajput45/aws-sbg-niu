@@ -34,6 +34,9 @@ export function getLiveSiteConfig() {
       linkedinUrl: custom.linkedinUrl ?? defaultSiteConfig.linkedinUrl,
       twitterUrl: custom.twitterUrl ?? defaultSiteConfig.twitterUrl,
       discordUrl: custom.discordUrl ?? '',
+      upiId: custom.upiId || defaultSiteConfig.upiId,
+      upiName: custom.upiName || defaultSiteConfig.upiName,
+      upiQrImageUrl: custom.upiQrImageUrl ?? defaultSiteConfig.upiQrImageUrl,
       aboutSource: {
         ...defaultSiteConfig.aboutSource,
         headline: custom.aboutHeadline || defaultSiteConfig.aboutSource.headline,

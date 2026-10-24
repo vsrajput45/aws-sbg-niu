@@ -4,9 +4,10 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { 
   Calendar, Clock, MapPin, Users, Award, 
-  ArrowRight, ExternalLink, Sparkles, Copy, Check 
+  ArrowRight, ExternalLink, Sparkles, Copy, Check,
+  Mic, HeartHandshake 
 } from 'lucide-react';
-import { EventRecord } from '@/lib/db/types';
+import { EventRecord, RegistrationRole } from '@/lib/db/types';
 import { RegistrationModal } from '@/components/registration-modal';
 import { formatDate } from '@/lib/utils';
 import { siteConfig } from '@/config/site';
@@ -17,7 +18,13 @@ interface EventDetailClientProps {
 
 export function EventDetailClient({ event }: EventDetailClientProps) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<RegistrationRole>('attendee');
   const [copiedLink, setCopiedLink] = useState(false);
+
+  const openRegistration = (role: RegistrationRole = 'attendee') => {
+    setSelectedRole(role);
+    setModalOpen(true);
+  };
 
   // Seat metrics
   const confirmed = event.confirmed_count || 0;
@@ -165,9 +172,9 @@ export function EventDetailClient({ event }: EventDetailClientProps) {
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {event.speakers.map((sp) => (
+                {event.speakers.map((sp, idx) => (
                   <div
-                    key={sp.id}
+                    key={sp.id || sp.name || idx}
                     className="p-4 bg-[#13092B] border border-[#24143D] rounded-xl space-y-3 hover:border-[#8B5CF6]/50 transition"
                   >
                     <div className="flex items-center gap-3">
@@ -325,13 +332,53 @@ export function EventDetailClient({ event }: EventDetailClientProps) {
                       <ExternalLink className="w-4 h-4" />
                     </a>
                   ) : (
-                    <button
-                      onClick={() => setModalOpen(true)}
-                      className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] hover:brightness-110 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 cursor-pointer"
-                    >
-                      <span>{isFull ? 'Join Waitlist Queue' : 'Register Now'}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => openRegistration('attendee')}
+                        className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] hover:brightness-110 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 cursor-pointer"
+                      >
+                        <span>{isFull ? 'Join Waitlist Queue' : 'Register as Attendee'}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+
+                      {/* Quick Role Options */}
+                      <div className="pt-2 border-t border-[#24143D]">
+                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-1.5 text-center">
+                          Or Register Under Different Roles:
+                        </span>
+                        <div className="grid grid-cols-3 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openRegistration('speaker')}
+                            className="p-2 rounded-lg bg-[#180C36] hover:bg-[#22104C] border border-[#24143D] hover:border-purple-500/50 text-purple-200 hover:text-white text-[11px] font-semibold transition text-center flex flex-col items-center gap-1 cursor-pointer"
+                            title="Propose a session to speak"
+                          >
+                            <Mic className="w-3.5 h-3.5 text-[#C084FC]" />
+                            <span>Speaker</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => openRegistration('sponsor')}
+                            className="p-2 rounded-lg bg-[#180C36] hover:bg-[#22104C] border border-[#24143D] hover:border-amber-500/50 text-amber-200 hover:text-white text-[11px] font-semibold transition text-center flex flex-col items-center gap-1 cursor-pointer"
+                            title="Sponsor this event"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Sponsor</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => openRegistration('volunteer')}
+                            className="p-2 rounded-lg bg-[#180C36] hover:bg-[#22104C] border border-[#24143D] hover:border-teal-500/50 text-teal-200 hover:text-white text-[11px] font-semibold transition text-center flex flex-col items-center gap-1 cursor-pointer"
+                            title="Volunteer for organizing crew"
+                          >
+                            <HeartHandshake className="w-3.5 h-3.5 text-teal-400" />
+                            <span>Volunteer</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   )}
 
                   {event.registration_type === 'both' && event.meetup_event_url && (
@@ -416,8 +463,8 @@ export function EventDetailClient({ event }: EventDetailClientProps) {
           </div>
 
           <button
-            onClick={() => setModalOpen(true)}
-            className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] text-white text-xs font-bold uppercase tracking-wider shadow-lg shadow-purple-900/30 shrink-0"
+            onClick={() => openRegistration('attendee')}
+            className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] text-white text-xs font-bold uppercase tracking-wider shadow-lg shadow-purple-900/30 shrink-0 cursor-pointer"
           >
             {isFull ? 'Join Waitlist' : 'RSVP Now'}
           </button>
@@ -428,6 +475,7 @@ export function EventDetailClient({ event }: EventDetailClientProps) {
       <RegistrationModal
         event={event}
         isOpen={modalOpen}
+        defaultRole={selectedRole}
         onClose={() => setModalOpen(false)}
       />
     </div>

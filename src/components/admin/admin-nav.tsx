@@ -1,9 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Calendar, LayoutDashboard, PlusCircle, LogOut, ExternalLink, Shield, Settings, Users } from 'lucide-react';
+import { Calendar, LayoutDashboard, PlusCircle, LogOut, ExternalLink, Shield, Settings, Users, Award, Menu, X } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 
 interface AdminNavProps {
@@ -14,6 +15,7 @@ interface AdminNavProps {
 export function AdminNav({ userEmail = 'admin@niu.ac.in', userRole = 'admin' }: AdminNavProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -28,6 +30,7 @@ export function AdminNav({ userEmail = 'admin@niu.ac.in', userRole = 'admin' }: 
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/events', label: 'Manage Events', icon: Calendar },
+    { href: '/admin/badges', label: 'Badge Verification', icon: Award },
     { href: '/admin/events/new', label: 'New Event', icon: PlusCircle },
     { href: '/admin/team', label: 'Core Team', icon: Users },
     { href: '/admin/site-settings', label: 'Web Page Details', icon: Settings },
@@ -100,10 +103,61 @@ export function AdminNav({ userEmail = 'admin@niu.ac.in', userRole = 'admin' }: 
               >
                 <LogOut className="w-4 h-4" />
               </button>
+
+              {/* Mobile Menu Toggle */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 text-gray-400 hover:text-white hover:bg-[#1A1A1A] rounded-lg transition ml-1"
+                aria-label="Toggle Admin Menu"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5 text-[#FF9900]" /> : <Menu className="w-5 h-5" />}
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-[#111111] border-b border-[#262626] px-4 py-4 space-y-3 animate-in fade-in duration-150">
+          <div className="flex flex-col space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href));
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition ${
+                    isActive
+                      ? 'bg-[#1F1F1F] text-[#FF9900] border border-[#333333]'
+                      : 'text-gray-300 hover:text-white hover:bg-[#181818]'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 text-[#FF9900]" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="pt-3 border-t border-[#222222] flex items-center justify-between">
+            <Link
+              href="/"
+              target="_blank"
+              className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition px-2.5 py-1 rounded bg-[#181818] border border-[#2B2B2B]"
+            >
+              <span>View Live Site</span>
+              <ExternalLink className="w-3 h-3" />
+            </Link>
+
+            <span className="text-[11px] text-gray-400 font-mono">
+              Role: <strong className="text-[#FF9900]">{userRole}</strong>
+            </span>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

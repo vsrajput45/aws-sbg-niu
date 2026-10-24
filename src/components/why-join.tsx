@@ -32,7 +32,7 @@ export function WhyJoin({ config }: { config?: typeof siteConfig } = {}) {
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-white tracking-tight">
-            Why Join AWS SBG NIU?
+            Why Join {cfg.shortName}?
           </h2>
 
           <p className="text-sm sm:text-base text-gray-200 leading-relaxed">

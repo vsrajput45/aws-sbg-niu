@@ -79,7 +79,7 @@ export function Navbar({ featuredEvent, config }: NavbarProps) {
             <span className="text-xs font-bold text-white uppercase tracking-wider font-heading leading-tight">
               {cfg.shortName}
             </span>
-            <span className="text-xs text-gray-300 font-medium">Greater Noida, UP</span>
+            <span className="text-xs text-gray-300 font-medium">{cfg.city}</span>
           </div>
         </Link>
 

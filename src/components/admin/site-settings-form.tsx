@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Building2, MapPin, Globe, Share2, Sparkles, FileText, 
@@ -13,6 +14,7 @@ interface SiteSettingsFormProps {
 }
 
 export function SiteSettingsForm({ initialSettings }: SiteSettingsFormProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState<SiteSettingsRecord>(initialSettings);
   const [marqueeInput, setMarqueeInput] = useState<string>(
     initialSettings.marqueeTopics ? initialSettings.marqueeTopics.join(', ') : ''
@@ -57,6 +59,7 @@ export function SiteSettingsForm({ initialSettings }: SiteSettingsFormProps) {
       setFormData(data.settings);
       setMarqueeInput(data.settings.marqueeTopics.join(', '));
       setStatus({ type: 'success', message: 'Web page details saved successfully!' });
+      router.refresh();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error updating settings';
       setStatus({ type: 'error', message: msg });
@@ -88,6 +91,7 @@ export function SiteSettingsForm({ initialSettings }: SiteSettingsFormProps) {
       setFormData(data.settings);
       setMarqueeInput(data.settings.marqueeTopics.join(', '));
       setStatus({ type: 'success', message: 'All site details reset to official defaults.' });
+      router.refresh();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error resetting settings';
       setStatus({ type: 'error', message: msg });

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 
@@ -23,6 +24,8 @@ export async function POST(request: Request) {
 
     if (json.action === 'reset') {
       const reset = db.resetSiteSettings();
+      revalidatePath('/', 'layout');
+      revalidatePath('/admin/site-settings');
       return NextResponse.json({
         success: true,
         message: 'Settings reset to original defaults successfully',
@@ -91,6 +94,12 @@ export async function POST(request: Request) {
         marqueeTopics: marqueeTopics.map((t: string) => String(t).trim()).filter(Boolean),
       }),
     });
+
+    revalidatePath('/', 'layout');
+    revalidatePath('/admin/site-settings');
+    revalidatePath('/cfp');
+    revalidatePath('/sponsors');
+    revalidatePath('/events');
 
     return NextResponse.json({
       success: true,

@@ -95,11 +95,22 @@ export const defaultSiteSettings: SiteSettingsRecord = {
 };
 
 function ensureDbFile(): DatabaseData {
+  const { dataDir, dbFile, seedFile } = getDataPaths();
+
+  try {
+    if (fs.existsSync(/*turbopackIgnore: true*/ dbFile)) {
+      const raw = fs.readFileSync(/*turbopackIgnore: true*/ dbFile, 'utf-8');
+      const parsed: DatabaseData = JSON.parse(raw);
+      memoryCache = parsed;
+      return parsed;
+    }
+  } catch (err) {
+    console.warn('Could not read from dbFile:', err);
+  }
+
   if (memoryCache) {
     return memoryCache;
   }
-
-  const { dataDir, dbFile, seedFile } = getDataPaths();
 
   try {
     if (!fs.existsSync(/*turbopackIgnore: true*/ dataDir)) {

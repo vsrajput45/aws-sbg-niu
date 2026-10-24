@@ -24,7 +24,7 @@ export function Footer({ config }: { config?: typeof siteConfig } = {}) {
             </div>
 
             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-              {cfg.chapterName} is a student-led academic community under AWS Student Programs, teaching practical cloud engineering, architecture, and technology transformation at Noida International University.
+              {cfg.chapterName} is a student-led academic community under AWS Student Programs, teaching practical cloud engineering, architecture, and technology transformation at {cfg.universityName}.
             </p>
 
             <div className="text-xs text-purple-300 font-medium">

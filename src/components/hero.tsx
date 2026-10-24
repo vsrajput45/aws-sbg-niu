@@ -88,7 +88,7 @@ export function Hero({ featuredEvent, config }: HeroProps) {
                 <span className="text-xs font-bold tracking-widest text-[#C084FC] uppercase font-heading">
                   Student Builder Group
                 </span>
-                <span className="text-xs text-gray-300 font-medium">Noida International University</span>
+                <span className="text-xs text-gray-300 font-medium">{cfg.universityName}</span>
               </div>
             </div>
 
@@ -98,7 +98,7 @@ export function Hero({ featuredEvent, config }: HeroProps) {
                 <div className="w-2 h-2 rounded-full bg-[#A855F7] animate-pulse" />
                 <span className="text-xs font-semibold text-purple-200 uppercase tracking-widest">
                   {isLaunchMode
-                    ? 'STUDENT BUILDER COMMUNITY • FOUNDED SEPTEMBER 2026 • NOIDA, INDIA'
+                    ? `STUDENT BUILDER COMMUNITY • FOUNDED ${cfg.foundedDate ? new Date(cfg.foundedDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase() : 'SEPTEMBER 2026'} • ${cfg.city.toUpperCase()}`
                     : `UPCOMING EVENT • ${featuredEvent?.category?.toUpperCase() || 'TECHNICAL SESSION'}`}
                 </span>
               </div>
@@ -108,9 +108,9 @@ export function Hero({ featuredEvent, config }: HeroProps) {
             <div className="space-y-4">
               {isLaunchMode ? (
                 <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-white tracking-tight leading-[1.08]">
-                  AWS Student Builder Group <br />
+                  {cfg.shortName} <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A855F7] via-[#C084FC] to-violet-200">
-                    Noida International University
+                    {cfg.universityName}
                   </span>
                 </h1>
               ) : (
@@ -122,7 +122,7 @@ export function Hero({ featuredEvent, config }: HeroProps) {
               {/* Subtext */}
               <p className="text-base sm:text-lg text-gray-200 max-w-2xl leading-relaxed font-normal">
                 {isLaunchMode
-                  ? 'A student-led, student-driven academic community at Noida International University. Learn cloud architecture, explore hands-on AWS projects, and master high-demand skills in AI, Cybersecurity, Robotics, and Business Transformation.'
+                  ? cfg.tagline
                   : featuredEvent?.summary}
               </p>
             </div>
@@ -294,7 +294,7 @@ export function Hero({ featuredEvent, config }: HeroProps) {
                   </div>
                   <div className="flex items-center justify-between text-gray-300">
                     <span>Campus Host</span>
-                    <span className="text-white font-semibold">Noida Intl University</span>
+                    <span className="text-white font-semibold">{cfg.universityName}</span>
                   </div>
                 </div>
 

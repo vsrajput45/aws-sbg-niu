@@ -25,7 +25,7 @@ export function CtaSection({ config }: { config?: typeof siteConfig } = {}) {
         </h2>
 
         <p className="text-base sm:text-lg text-gray-200 max-w-xl mx-auto leading-relaxed font-normal">
-          Help shape the future of student cloud innovation at Noida International University. Joining is 100% free, open to any learner 18+, and takes just one click.
+          Help shape the future of student cloud innovation at {cfg.universityName}. Joining is 100% free, open to any learner 18+, and takes just one click.
         </p>
 
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">

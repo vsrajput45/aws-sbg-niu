@@ -18,10 +18,6 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Already authenticated user visiting login page -> redirect to dashboard
-  if (pathname === '/admin/login' && isAuthenticated) {
-    return NextResponse.redirect(new URL('/admin', request.url));
-  }
 
   // Protect /admin routes (except login)
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {

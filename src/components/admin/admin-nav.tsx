@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -17,8 +17,23 @@ export function AdminNav({ userEmail = 'admin@niu.ac.in', userRole = 'admin' }: 
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isTabActive = sessionStorage.getItem('aws_sbg_admin_tab_active');
+      if (!isTabActive) {
+        // Tab or browser was closed; discard authentication and force re-login
+        fetch('/api/auth/logout', { method: 'POST' }).finally(() => {
+          router.replace('/admin/login');
+        });
+      }
+    }
+  }, [router]);
+
   const handleLogout = async () => {
     try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('aws_sbg_admin_tab_active');
+      }
       await fetch('/api/auth/logout', { method: 'POST' });
       router.push('/admin/login');
       router.refresh();

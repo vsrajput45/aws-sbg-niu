@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -16,6 +16,12 @@ function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('aws_sbg_admin_tab_active');
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +39,10 @@ function LoginForm() {
 
       if (!res.ok) {
         throw new Error(data.error || 'Authentication failed');
+      }
+
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('aws_sbg_admin_tab_active', '1');
       }
 
       router.push(nextUrl);

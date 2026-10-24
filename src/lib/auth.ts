@@ -34,7 +34,8 @@ function getAdminPassword(): string | undefined {
 }
 
 export async function createSession(email: string, role: UserRole): Promise<AuthSession> {
-  const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+  // Session safety ceiling: 12 hours while browser is open
+  const expiresAt = Date.now() + 12 * 60 * 60 * 1000;
   const profile = db.getProfileByEmail(email);
 
   const session: AuthSession = {
@@ -45,12 +46,12 @@ export async function createSession(email: string, role: UserRole): Promise<Auth
   };
 
   const cookieStore = await cookies();
+  // Browser Session Cookie: omitting maxAge/expires means cookie is automatically cleared when browser closes
   cookieStore.set(SESSION_COOKIE_NAME, JSON.stringify(session), {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
-    maxAge: 7 * 24 * 60 * 60,
   });
 
   return session;

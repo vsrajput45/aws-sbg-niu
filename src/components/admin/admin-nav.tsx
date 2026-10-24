@@ -142,19 +142,33 @@ export function AdminNav({ userEmail = 'admin@niu.ac.in', userRole = 'admin' }: 
             })}
           </div>
 
-          <div className="pt-3 border-t border-[#222222] flex items-center justify-between">
-            <Link
-              href="/"
-              target="_blank"
-              className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition px-2.5 py-1 rounded bg-[#181818] border border-[#2B2B2B]"
-            >
-              <span>View Live Site</span>
-              <ExternalLink className="w-3 h-3" />
-            </Link>
+          <div className="pt-3 border-t border-[#222222] flex flex-col gap-2.5">
+            <div className="flex items-center justify-between text-xs text-gray-400">
+              <span className="truncate max-w-[200px]">{userEmail}</span>
+              <span className="text-[11px] font-mono">
+                Role: <strong className="text-[#FF9900]">{userRole}</strong>
+              </span>
+            </div>
 
-            <span className="text-[11px] text-gray-400 font-mono">
-              Role: <strong className="text-[#FF9900]">{userRole}</strong>
-            </span>
+            <div className="flex items-center gap-2 pt-1">
+              <Link
+                href="/"
+                target="_blank"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs text-gray-300 hover:text-white transition py-2 px-3 rounded-lg bg-[#181818] border border-[#2B2B2B]"
+              >
+                <span>View Live Site</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs text-red-400 hover:text-red-300 transition py-2 px-3 rounded-lg bg-red-950/30 border border-red-900/50"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Log Out</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -9,7 +9,10 @@ import {
   TeamMemberRecord,
   BadgeApplicationRecord,
   BadgeStatus,
-  PaymentStatus
+  PaymentStatus,
+  SpeakerProposalRecord,
+  SpeakerProposalStatus,
+  SpeakerDeliveryMode
 } from './types';
 import { initialProfiles, sampleDraftEvent, initialRegistrations, initialTeamMembers } from './seed';
 
@@ -20,6 +23,7 @@ interface DatabaseData {
   site_settings?: SiteSettingsRecord;
   team?: TeamMemberRecord[];
   badges?: BadgeApplicationRecord[];
+  speaker_proposals?: SpeakerProposalRecord[];
 }
 
 // In-memory cache for ultra-fast reads and fallback in serverless environments (Netlify, AWS Lambda)
@@ -122,6 +126,8 @@ function ensureDbFile(): DatabaseData {
         registrations: initialRegistrations,
         site_settings: { ...defaultSiteSettings },
         team: [...initialTeamMembers],
+        badges: [],
+        speaker_proposals: [],
       };
       try {
         fs.writeFileSync(/*turbopackIgnore: true*/ dbFile, JSON.stringify(initialData, null, 2), 'utf-8');
@@ -207,6 +213,11 @@ function ensureDbFile(): DatabaseData {
           updated_at: '2026-10-23T14:15:00.000Z',
         },
       ];
+      needsRewrite = true;
+    }
+
+    if (!parsed.speaker_proposals) {
+      parsed.speaker_proposals = [];
       needsRewrite = true;
     }
 
@@ -910,6 +921,98 @@ export const dbStore = {
     const idx = db.badges.findIndex((b) => b.id === id || b.code === id);
     if (idx === -1) return false;
     db.badges.splice(idx, 1);
+    writeDbFile(db);
+    return true;
+  },
+
+  createSpeakerProposal(params: {
+    fullName: string;
+    email: string;
+    phone: string;
+    designation: string;
+    organization: string;
+    city?: string;
+    linkedinUrl: string;
+    portfolioUrl?: string;
+    bio: string;
+    talkTitle: string;
+    track: string;
+    sessionFormat: string;
+    deliveryMode: SpeakerDeliveryMode;
+    abstract: string;
+    prerequisites?: string;
+    experienceLinks?: string;
+  }): SpeakerProposalRecord {
+    const db = ensureDbFile();
+    if (!db.speaker_proposals) {
+      db.speaker_proposals = [];
+    }
+
+    const now = new Date().toISOString();
+    const randNum = Math.floor(1000 + Math.random() * 9000);
+    const refCode = `SPK-NIU-2026-${randNum}`;
+
+    const newProposal: SpeakerProposalRecord = {
+      id: `spk-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      reference_code: refCode,
+      full_name: params.fullName.trim(),
+      email: params.email.trim().toLowerCase(),
+      phone: params.phone.trim(),
+      designation: params.designation.trim(),
+      organization: params.organization.trim(),
+      city: params.city?.trim() || 'Delhi NCR, India',
+      linkedin_url: params.linkedinUrl.trim(),
+      portfolio_url: params.portfolioUrl?.trim() || undefined,
+      bio: params.bio.trim(),
+      talk_title: params.talkTitle.trim(),
+      track: params.track.trim(),
+      session_format: params.sessionFormat.trim(),
+      delivery_mode: params.deliveryMode || 'in_person',
+      abstract: params.abstract.trim(),
+      prerequisites: params.prerequisites?.trim() || undefined,
+      experience_links: params.experienceLinks?.trim() || undefined,
+      status: 'pending',
+      created_at: now,
+      updated_at: now,
+    };
+
+    db.speaker_proposals.unshift(newProposal);
+    writeDbFile(db);
+    return newProposal;
+  },
+
+  getSpeakerProposals(): SpeakerProposalRecord[] {
+    const db = ensureDbFile();
+    return db.speaker_proposals || [];
+  },
+
+  getSpeakerProposalById(id: string): SpeakerProposalRecord | null {
+    const db = ensureDbFile();
+    if (!db.speaker_proposals) return null;
+    return db.speaker_proposals.find((p) => p.id === id || p.reference_code === id) || null;
+  },
+
+  updateSpeakerProposalStatus(id: string, status: SpeakerProposalStatus, admin_notes?: string): SpeakerProposalRecord | null {
+    const db = ensureDbFile();
+    if (!db.speaker_proposals) return null;
+    const proposal = db.speaker_proposals.find((p) => p.id === id || p.reference_code === id);
+    if (!proposal) return null;
+
+    proposal.status = status;
+    if (admin_notes !== undefined) {
+      proposal.admin_notes = admin_notes;
+    }
+    proposal.updated_at = new Date().toISOString();
+    writeDbFile(db);
+    return proposal;
+  },
+
+  deleteSpeakerProposal(id: string): boolean {
+    const db = ensureDbFile();
+    if (!db.speaker_proposals) return false;
+    const idx = db.speaker_proposals.findIndex((p) => p.id === id || p.reference_code === id);
+    if (idx === -1) return false;
+    db.speaker_proposals.splice(idx, 1);
     writeDbFile(db);
     return true;
   },

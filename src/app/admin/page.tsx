@@ -27,6 +27,8 @@ export default async function AdminDashboardPage() {
   const teamMembers = db.getTeamMembers();
   const allBadges = db.getAllBadges();
   const pendingBadges = allBadges.filter((b) => b.status === 'pending' || !b.code);
+  const speakerProposals = db.getSpeakerProposals();
+  const pendingProposals = speakerProposals.filter((p) => p.status === 'pending');
 
   // Metrics
   const totalEvents = allEvents.length;
@@ -93,93 +95,122 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Quick Action Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Badge Verification Card */}
-          <div className="p-5 rounded-xl bg-gradient-to-r from-[#141414] via-[#121212] to-[#141414] border border-[#2B2B2B] flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="p-3 rounded-lg bg-[#FF9900]/10 border border-[#FF9900]/30 text-[#FF9900] shrink-0">
-                <Award className="w-6 h-6" />
+          <div className="p-5 rounded-xl bg-gradient-to-r from-[#141414] via-[#121212] to-[#141414] border border-[#2B2B2B] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-lg bg-[#FF9900]/10 border border-[#FF9900]/30 text-[#FF9900] shrink-0">
+                <Award className="w-5 h-5" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-white font-heading">
-                    Badge Verification
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-bold text-white font-heading">
+                    Badge Passes
                   </span>
                   {pendingBadges.length > 0 && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                      {pendingBadges.length} Pending
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                      {pendingBadges.length} New
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Approve and issue pass codes for conference delegates &amp; donors.
+                <p className="text-[11px] text-gray-400 mt-0.5 truncate">
+                  Issue passes
                 </p>
               </div>
             </div>
 
             <Link
               href="/admin/badges"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider transition shadow-md shadow-[#FF9900]/20 shrink-0"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider transition shrink-0"
             >
               <span>Verify</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+
+          {/* Speaker Proposals Card */}
+          <div className="p-5 rounded-xl bg-gradient-to-r from-[#141414] via-[#121212] to-[#141414] border border-[#2B2B2B] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-400 shrink-0">
+                <Mic className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-bold text-white font-heading">
+                    Speaker CFP
+                  </span>
+                  {pendingProposals.length > 0 && (
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                      {pendingProposals.length} New
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-gray-400 mt-0.5 truncate">
+                  {speakerProposals.length} Submitted
+                </p>
+              </div>
+            </div>
+
+            <Link
+              href="/admin/speakers"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#8B5CF6] hover:bg-[#9333EA] text-white text-xs font-bold uppercase tracking-wider transition shrink-0 shadow-md shadow-purple-900/30"
+            >
+              <span>Review</span>
+              <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
 
           {/* Core Team Management Card */}
-          <div className="p-5 rounded-xl bg-gradient-to-r from-[#141414] via-[#121212] to-[#141414] border border-[#2B2B2B] flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="p-3 rounded-lg bg-[#FF9900]/10 border border-[#FF9900]/30 text-[#FF9900] shrink-0">
-                <Users className="w-6 h-6" />
+          <div className="p-5 rounded-xl bg-gradient-to-r from-[#141414] via-[#121212] to-[#141414] border border-[#2B2B2B] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 shrink-0">
+                <Users className="w-5 h-5" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-white font-heading">
-                    Core Team Management
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF9900]/15 text-[#FF9900] border border-[#FF9900]/30">
-                    {teamMembers.length} Leaders
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-white font-heading">
+                    Core Team
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Add student organizers, update roles, and manage appointed leads.
+                <p className="text-[11px] text-gray-400 mt-0.5 truncate">
+                  {teamMembers.length} Leaders
                 </p>
               </div>
             </div>
 
             <Link
               href="/admin/team"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#181818] hover:bg-[#222222] border border-[#333333] text-white text-xs font-semibold uppercase tracking-wider transition shrink-0"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181818] hover:bg-[#222222] border border-[#333333] text-white text-xs font-semibold uppercase tracking-wider transition shrink-0"
             >
               <span>Manage</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
 
           {/* Site Details Card */}
-          <div className="p-5 rounded-xl bg-gradient-to-r from-[#141414] via-[#121212] to-[#141414] border border-[#2B2B2B] flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="p-3 rounded-lg bg-[#FF9900]/10 border border-[#FF9900]/30 text-[#FF9900] shrink-0">
-                <Globe className="w-6 h-6" />
+          <div className="p-5 rounded-xl bg-gradient-to-r from-[#141414] via-[#121212] to-[#141414] border border-[#2B2B2B] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shrink-0">
+                <Globe className="w-5 h-5" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-white font-heading">
-                    Live Web Page Details
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-white font-heading">
+                    Site Details
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[200px]">
-                  {siteSettings.chapterName} • {siteSettings.campusVenue}
+                <p className="text-[11px] text-gray-400 mt-0.5 truncate">
+                  Live settings
                 </p>
               </div>
             </div>
 
             <Link
               href="/admin/site-settings"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#181818] hover:bg-[#222222] border border-[#333333] text-white text-xs font-semibold uppercase tracking-wider transition shrink-0"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181818] hover:bg-[#222222] border border-[#333333] text-white text-xs font-semibold uppercase tracking-wider transition shrink-0"
             >
               <span>Settings</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
         </div>

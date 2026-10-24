@@ -8,6 +8,7 @@ import { getLiveSiteConfig } from '@/lib/siteSettings';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { db } from '@/lib/db';
+import { SpeakerRegistrationForm } from '@/components/speaker-registration-form';
 
 export const dynamic = 'force-dynamic';
 
@@ -119,18 +120,21 @@ export default function CfpPage() {
               We invite engineers, researchers, AWS practitioners, and community leaders to present hands-on sessions, real architecture case studies, and career guidance.
             </p>
 
-            <div className="pt-4">
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
               <a
-                href={siteConfig.formLinks.speakerInterestForm}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] hover:brightness-110 text-white text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg shadow-purple-900/30 cursor-pointer"
+                href="#speaker-registration-form"
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] hover:brightness-110 text-white text-xs font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg shadow-purple-900/40 cursor-pointer"
               >
                 <span>Express Interest to Speak</span>
-                <ExternalLink className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 text-[#FF9900]" />
               </a>
             </div>
           </div>
+
+          {/* Interactive Speaker Proposal & Registration Form */}
+          <section className="max-w-4xl mx-auto">
+            <SpeakerRegistrationForm tracks={tracks} />
+          </section>
 
           {/* Why Speak Grid (Rendered ONCE) */}
           <section className="space-y-8">

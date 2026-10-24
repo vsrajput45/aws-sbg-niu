@@ -219,3 +219,32 @@ export interface BadgeApplicationRecord {
   updated_at: string;
 }
 
+export type SpeakerProposalStatus = 'pending' | 'accepted' | 'shortlisted' | 'declined';
+export type SpeakerDeliveryMode = 'in_person' | 'online' | 'flexible';
+
+export interface SpeakerProposalRecord {
+  id: string;
+  reference_code: string; // e.g. SPK-2026-5432
+  full_name: string;
+  email: string;
+  phone: string;
+  designation: string;
+  organization: string;
+  city?: string;
+  linkedin_url: string;
+  portfolio_url?: string;
+  bio: string;
+  talk_title: string;
+  track: string;
+  session_format: string;
+  delivery_mode: SpeakerDeliveryMode;
+  abstract: string;
+  prerequisites?: string;
+  experience_links?: string;
+  status: SpeakerProposalStatus;
+  admin_notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+

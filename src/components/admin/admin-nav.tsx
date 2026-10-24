@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Calendar, LayoutDashboard, PlusCircle, LogOut, ExternalLink, Shield, Settings, Users, Award, Menu, X } from 'lucide-react';
+import { Calendar, LayoutDashboard, PlusCircle, LogOut, ExternalLink, Shield, Settings, Users, Award, Menu, X, Mic } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 
 interface AdminNavProps {
@@ -30,6 +30,7 @@ export function AdminNav({ userEmail = 'admin@niu.ac.in', userRole = 'admin' }: 
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/events', label: 'Manage Events', icon: Calendar },
+    { href: '/admin/speakers', label: 'Speaker Proposals', icon: Mic },
     { href: '/admin/badges', label: 'Badge Verification', icon: Award },
     { href: '/admin/events/new', label: 'New Event', icon: PlusCircle },
     { href: '/admin/team', label: 'Core Team', icon: Users },

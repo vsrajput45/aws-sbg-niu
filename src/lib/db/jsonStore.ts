@@ -72,8 +72,8 @@ export const defaultSiteSettings: SiteSettingsRecord = {
   upiId: "aws-sbg@niu",
   upiName: "AWS SBG NIU",
   upiQrImageUrl: "",
-  speakerInterestForm: "https://forms.gle/placeholder-speaker-interest",
-  sponsorForm: "https://forms.gle/placeholder-community-partnership",
+  speakerInterestForm: "/cfp#speaker-registration-form",
+  sponsorForm: "/sponsors",
   aboutHeadline: "Built by the Community, for the Community.",
   aboutDescription: "The AWS Student Builder Group at Noida International University is a student-led, student-driven academic community dedicated to learning, building, and innovating with Amazon Web Services.\n\nWe bridge the gap between classroom theory and real-world industry demands. Through hands-on AWS projects, architectural workshops, and peer mentorship, our members gain deep technical proficiency alongside strategic business acumen.\n\nWhether you are passionate about cloud architecture, cybersecurity, generative AI, machine learning, robotics, or business transformation, this community provides the collaborative launchpad to turn concepts into production cloud systems.",
   marqueeTopics: [

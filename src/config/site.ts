@@ -149,10 +149,10 @@ export const siteConfig = {
     },
   ],
 
-  // Form links (Placeholders for forms - joining happens directly on Meetup)
+  // Form links (Internal on-site routes)
   formLinks: {
-    speakerInterestForm: "https://forms.gle/placeholder-speaker-interest",
-    sponsorForm: "https://forms.gle/placeholder-community-partnership",
+    speakerInterestForm: "/cfp#speaker-registration-form",
+    sponsorForm: "/sponsors",
   },
 
   // Sponsorship Tiers

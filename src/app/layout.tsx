@@ -24,8 +24,17 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aws-sbg-niu.ac.in';
+const cleanSiteUrl = rawSiteUrl.replace(/[\u200B-\u200D\uFEFF]/g, '').trim() || 'https://aws-sbg-niu.ac.in';
+let siteMetadataBase: URL;
+try {
+  siteMetadataBase = new URL(cleanSiteUrl);
+} catch {
+  siteMetadataBase = new URL('https://aws-sbg-niu.ac.in');
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://aws-sbg-niu.ac.in'),
+  metadataBase: siteMetadataBase,
   title: {
     default: `${siteConfig.shortName} | AWS Student Builder Group at Noida International University`,
     template: `%s | ${siteConfig.shortName}`,

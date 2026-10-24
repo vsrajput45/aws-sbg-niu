@@ -15,7 +15,7 @@ const SESSION_COOKIE_NAME = 'aws_sbg_session';
 
 function getAdminPassword(): string | undefined {
   if (process.env.ADMIN_PASSWORD) {
-    return process.env.ADMIN_PASSWORD;
+    return process.env.ADMIN_PASSWORD.replace(/[\u200B-\u200D\uFEFF]/g, '').trim().replace(/^["']|["']$/g, '');
   }
   // Local development fallback: dynamically read .env.local if dev server wasn't restarted
   try {
@@ -24,7 +24,7 @@ function getAdminPassword(): string | undefined {
       const content = fs.readFileSync(/*turbopackIgnore: true*/ envPath, 'utf-8');
       const match = content.match(/^ADMIN_PASSWORD=(.*)$/m);
       if (match && match[1]) {
-        return match[1].trim().replace(/^["']|["']$/g, '');
+        return match[1].replace(/[\u200B-\u200D\uFEFF]/g, '').trim().replace(/^["']|["']$/g, '');
       }
     }
   } catch {
@@ -80,7 +80,27 @@ export async function destroySession(): Promise<void> {
 
 export async function verifyCredentials(email: string, password: string): Promise<{ success: boolean; role?: UserRole; error?: string }> {
   const normalizedEmail = email.trim().toLowerCase();
-  const profile = db.getProfileByEmail(normalizedEmail);
+  
+  // Find profile in db, or recognize standard admin aliases
+  let profile = db.getProfileByEmail(normalizedEmail);
+  if (!profile) {
+    const adminEmailEnv = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+    const isKnownAdmin = 
+      normalizedEmail === 'aws@niu.ac.in' ||
+      normalizedEmail === 'aws.sbg@niu.ac.in' ||
+      normalizedEmail === 'admin@niu.ac.in' ||
+      normalizedEmail === 'editor@niu.ac.in' ||
+      (adminEmailEnv && normalizedEmail === adminEmailEnv);
+
+    if (isKnownAdmin) {
+      profile = {
+        id: '00000000-0000-0000-0000-000000000001',
+        email: normalizedEmail,
+        role: normalizedEmail.includes('editor') ? 'editor' : 'admin',
+        created_at: new Date().toISOString(),
+      };
+    }
+  }
 
   if (!profile) {
     return { success: false, error: 'No admin or editor account found with this email.' };
@@ -92,8 +112,11 @@ export async function verifyCredentials(email: string, password: string): Promis
     return { success: false, error: 'Server authentication configuration missing. Please set ADMIN_PASSWORD in environment variables.' };
   }
 
+  const cleanConfigured = configuredPassword.replace(/[\u200B-\u200D\uFEFF]/g, '').trim().replace(/^["']|["']$/g, '');
+  const cleanInput = password.replace(/[\u200B-\u200D\uFEFF]/g, '').trim().replace(/^["']|["']$/g, '');
+
   // Check password against securely configured environment variable
-  if (password === configuredPassword) {
+  if (cleanInput === cleanConfigured) {
     return { success: true, role: profile.role };
   }
 

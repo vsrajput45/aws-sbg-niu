@@ -6,7 +6,7 @@ import { generateModernQrDataUrl } from '@/lib/modernQr';
 import { 
   Award, CheckCircle2, Clock, XCircle, Search, Filter, 
   ExternalLink, QrCode, ShieldCheck, IndianRupee, RefreshCw, 
-  Trash2, UserCheck, AlertCircle, Eye, Sparkles
+  Trash2, UserCheck, AlertCircle, Eye, Sparkles, Copy, Download
 } from 'lucide-react';
 import { BadgeApplicationRecord, BadgeStatus } from '@/lib/db';
 
@@ -25,6 +25,24 @@ export function BadgeAdminClient({ initialBadges }: BadgeAdminClientProps) {
   const [generatedCode, setGeneratedCode] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [submittingCode, setSubmittingCode] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    if (!selectedBadge?.code) return;
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://aws-sbg-niu.vercel.app';
+    const link = `${origin}/verify/${selectedBadge.code}`;
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownloadQr = () => {
+    if (!modalQrUrl || !selectedBadge?.code) return;
+    const a = document.createElement('a');
+    a.href = modalQrUrl;
+    a.download = `AWS-QR-${selectedBadge.code}.png`;
+    a.click();
+  };
 
   useEffect(() => {
     if (!selectedBadge?.code) {
@@ -622,20 +640,51 @@ export function BadgeAdminClient({ initialBadges }: BadgeAdminClientProps) {
             </div>
 
             {/* Quick Actions */}
-            <div className="flex items-center gap-2">
-              <Link
-                href={`/verify/${selectedBadge.code}`}
-                target="_blank"
-                className="flex-1 py-2.5 bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider text-center rounded-lg transition"
-              >
-                Test Verification Page
-              </Link>
-              <button
-                onClick={() => setSelectedBadge(null)}
-                className="py-2.5 px-4 bg-[#1F1F1F] hover:bg-[#2A2A2A] text-gray-300 text-xs font-semibold rounded-lg transition"
-              >
-                Close
-              </button>
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/verify/${selectedBadge.code}`}
+                  target="_blank"
+                  className="flex-1 py-2.5 bg-[#FF9900] hover:bg-[#FFAA22] text-black text-xs font-bold uppercase tracking-wider text-center rounded-lg transition"
+                >
+                  Test Verification Page
+                </Link>
+                <Link
+                  href={`/badge?name=${encodeURIComponent(selectedBadge.full_name)}&role=${encodeURIComponent(selectedBadge.role)}`}
+                  target="_blank"
+                  className="flex-1 py-2.5 bg-[#1F1F1F] hover:bg-[#2A2A2A] text-white border border-[#333333] text-xs font-bold uppercase tracking-wider text-center rounded-lg transition flex items-center justify-center gap-1.5"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-[#FF9900]" />
+                  <span>Open Full Badge</span>
+                </Link>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="flex-1 py-2 bg-[#1A1A1A] hover:bg-[#252525] text-xs text-gray-300 font-medium rounded-lg border border-[#333333] transition flex items-center justify-center gap-1.5"
+                >
+                  {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[#FF9900]" />}
+                  <span>{copied ? 'Link Copied!' : 'Copy User Link'}</span>
+                </button>
+                {modalQrUrl && (
+                  <button
+                    type="button"
+                    onClick={handleDownloadQr}
+                    className="flex-1 py-2 bg-[#1A1A1A] hover:bg-[#252525] text-xs text-gray-300 font-medium rounded-lg border border-[#333333] transition flex items-center justify-center gap-1.5"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#FF9900]" />
+                    <span>Download QR PNG</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setSelectedBadge(null)}
+                  className="py-2 px-3 bg-[#1F1F1F] hover:bg-[#2A2A2A] text-gray-400 hover:text-white text-xs font-semibold rounded-lg transition"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

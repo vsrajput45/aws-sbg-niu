@@ -11,6 +11,7 @@ interface EditEventPageProps {
 export default async function EditEventPage({ params }: EditEventPageProps) {
   const session = await getSession();
   const { id } = await params;
+  await db.ensureLoaded();
   const event = db.getEventById(id, true);
 
   if (!event) {

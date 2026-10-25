@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { adminEventSchema } from '@/lib/validations';
@@ -9,6 +10,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  await db.ensureLoaded();
   const events = db.getAllEvents(true); // include drafts for admin
   return NextResponse.json({ events });
 }
@@ -19,6 +21,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  await db.ensureLoaded();
   try {
     const json = await request.json();
     const validated = adminEventSchema.parse(json);
@@ -32,6 +35,12 @@ export async function POST(request: Request) {
       ...validated,
       created_by: session.userId,
     } as Parameters<typeof db.saveEvent>[0]);
+
+    revalidatePath('/', 'layout');
+    revalidatePath('/events');
+    revalidatePath(`/events/${saved.slug}`);
+    revalidatePath('/admin');
+    revalidatePath('/admin/events');
 
     return NextResponse.json({ success: true, event: saved });
   } catch (error: unknown) {

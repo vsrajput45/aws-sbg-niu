@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 
@@ -8,6 +9,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  await db.ensureLoaded();
   const members = db.getTeamMembers();
   return NextResponse.json({ success: true, members });
 }
@@ -18,12 +20,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  await db.ensureLoaded();
   try {
     const json = await request.json();
 
     // Reset action
     if (json.action === 'reset') {
       const resetMembers = db.resetTeamMembers();
+      revalidatePath('/', 'layout');
+      revalidatePath('/admin');
+      revalidatePath('/admin/team');
       return NextResponse.json({
         success: true,
         message: 'Core team members reset to initial appointed leads',
@@ -35,6 +41,9 @@ export async function POST(request: Request) {
     if (json.action === 'reorder' && Array.isArray(json.ids)) {
       db.reorderTeamMembers(json.ids);
       const updatedMembers = db.getTeamMembers();
+      revalidatePath('/', 'layout');
+      revalidatePath('/admin');
+      revalidatePath('/admin/team');
       return NextResponse.json({
         success: true,
         message: 'Team order updated successfully',
@@ -83,6 +92,10 @@ export async function POST(request: Request) {
 
     const currentMembers = db.getTeamMembers();
 
+    revalidatePath('/', 'layout');
+    revalidatePath('/admin');
+    revalidatePath('/admin/team');
+
     return NextResponse.json({
       success: true,
       message: id ? 'Team member updated successfully!' : 'New team member added successfully!',
@@ -118,12 +131,18 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Member ID is required' }, { status: 400 });
     }
 
+    await db.ensureLoaded();
     const deleted = db.deleteTeamMember(memberId);
     if (!deleted) {
       return NextResponse.json({ error: 'Member not found or could not be deleted' }, { status: 404 });
     }
 
     const currentMembers = db.getTeamMembers();
+
+    revalidatePath('/', 'layout');
+    revalidatePath('/admin');
+    revalidatePath('/admin/team');
+
     return NextResponse.json({
       success: true,
       message: 'Member removed from Core Team successfully',

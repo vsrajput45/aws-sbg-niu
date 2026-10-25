@@ -19,6 +19,7 @@ export default async function AdminTeamPage() {
     redirect('/admin/login');
   }
 
+  await db.ensureLoaded();
   const teamMembers = db.getTeamMembers();
 
   return (

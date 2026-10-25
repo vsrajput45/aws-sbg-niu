@@ -11,6 +11,7 @@ interface RegistrationsPageProps {
 export default async function RegistrationsPage({ params }: RegistrationsPageProps) {
   const session = await getSession();
   const { id } = await params;
+  await db.ensureLoaded();
   const event = db.getEventById(id, true);
 
   if (!event) {

@@ -18,6 +18,7 @@ export default async function AdminSpeakersPage() {
     redirect('/admin/login?next=/admin/speakers');
   }
 
+  await db.ensureLoaded();
   const proposals = db.getSpeakerProposals();
 
   return (

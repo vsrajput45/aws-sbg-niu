@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminBadgesPage() {
+  await db.ensureLoaded();
   const session = await getSession();
   const badges = db.getAllBadges();
 

@@ -9,6 +9,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  await db.ensureLoaded();
   const settings = db.getSiteSettings();
   return NextResponse.json({ success: true, settings });
 }
@@ -19,6 +20,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  await db.ensureLoaded();
   try {
     const json = await request.json();
 

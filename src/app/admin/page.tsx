@@ -20,6 +20,7 @@ function getTodayIsoDate(): string {
 }
 
 export default async function AdminDashboardPage() {
+  await db.ensureLoaded();
   const session = await getSession();
   const allEvents = db.getAllEvents(true);
   const allRegistrations = db.getAllRegistrations();

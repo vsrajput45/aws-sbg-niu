@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { adminEventSchema } from '@/lib/validations';
@@ -12,6 +13,7 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  await db.ensureLoaded();
   const { id } = await params;
   const event = db.getEventById(id, true);
   if (!event) {
@@ -30,6 +32,7 @@ export async function PUT(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  await db.ensureLoaded();
   const { id } = await params;
   const existing = db.getEventById(id, true);
   if (!existing) {
@@ -49,6 +52,12 @@ export async function PUT(
       ...validated,
       id,
     } as Parameters<typeof db.saveEvent>[0]);
+
+    revalidatePath('/', 'layout');
+    revalidatePath('/events');
+    revalidatePath(`/events/${saved.slug}`);
+    revalidatePath('/admin');
+    revalidatePath('/admin/events');
 
     return NextResponse.json({ success: true, event: saved });
   } catch (error: unknown) {
@@ -77,10 +86,16 @@ export async function DELETE(
   }
 
   const { id } = await params;
+  await db.ensureLoaded();
   const success = db.deleteEvent(id);
   if (!success) {
     return NextResponse.json({ error: 'Event not found or failed to delete' }, { status: 404 });
   }
+
+  revalidatePath('/', 'layout');
+  revalidatePath('/events');
+  revalidatePath('/admin');
+  revalidatePath('/admin/events');
 
   return NextResponse.json({ success: true });
 }

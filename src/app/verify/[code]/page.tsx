@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
+import { getLiveSiteConfig } from '@/lib/siteSettings';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { 
@@ -9,6 +10,8 @@ import {
   Calendar, Building, User, Award, ArrowLeft, QrCode
 } from 'lucide-react';
 import { ModernQrCard } from '@/components/modern-qr-card';
+
+export const dynamic = 'force-dynamic';
 
 interface VerifyPageProps {
   params: Promise<{ code: string }>;
@@ -23,7 +26,9 @@ export async function generateMetadata({ params }: VerifyPageProps): Promise<Met
 }
 
 export default async function VerifyBadgePage({ params }: VerifyPageProps) {
+  await db.ensureLoaded();
   const { code } = await params;
+  const siteConfig = getLiveSiteConfig();
   const badge = db.getBadgeByCode(code);
   const featuredEvent = db.getFeaturedUpcomingEvent();
 
@@ -35,7 +40,7 @@ export default async function VerifyBadgePage({ params }: VerifyPageProps) {
       {/* Background Orbs */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-[#7C3AED]/20 via-[#EC4899]/15 to-[#FF9900]/20 rounded-full blur-[140px] pointer-events-none" />
 
-      <Navbar featuredEvent={featuredEvent} />
+      <Navbar featuredEvent={featuredEvent} config={siteConfig} />
 
       <main className="flex-1 pt-32 pb-24 relative z-10">
         <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 space-y-8">
@@ -187,7 +192,7 @@ export default async function VerifyBadgePage({ params }: VerifyPageProps) {
         </div>
       </main>
 
-      <Footer />
+      <Footer config={siteConfig} />
     </div>
   );
 }

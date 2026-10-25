@@ -49,7 +49,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  await db.ensureLoaded();
   const siteConfig = getLiveSiteConfig();
   // Read database for published upcoming featured event
   const featuredEvent = db.getFeaturedUpcomingEvent();
@@ -109,7 +110,7 @@ export default function HomePage() {
         <About config={siteConfig.aboutSource} />
 
         {/* 4. Focus Areas */}
-        <FocusAreas />
+        <FocusAreas config={siteConfig} />
 
         {/* 5. Why Join */}
         <WhyJoin config={siteConfig} />

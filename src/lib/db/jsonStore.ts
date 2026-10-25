@@ -15,6 +15,7 @@ import {
   SpeakerDeliveryMode
 } from './types';
 import { initialProfiles, sampleDraftEvent, initialRegistrations, initialTeamMembers } from './seed';
+import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 
 interface DatabaseData {
   profiles: ProfileRecord[];
@@ -101,6 +102,34 @@ function ensureDbFile(): DatabaseData {
     if (fs.existsSync(/*turbopackIgnore: true*/ dbFile)) {
       const raw = fs.readFileSync(/*turbopackIgnore: true*/ dbFile, 'utf-8');
       const parsed: DatabaseData = JSON.parse(raw);
+      let needsRewrite = false;
+      if (!parsed.site_settings) {
+        parsed.site_settings = { ...defaultSiteSettings };
+        needsRewrite = true;
+      }
+      if (!parsed.team || parsed.team.length === 0) {
+        parsed.team = [...initialTeamMembers];
+        needsRewrite = true;
+      }
+      if (!parsed.events) {
+        parsed.events = [];
+        needsRewrite = true;
+      }
+      if (!parsed.badges) {
+        parsed.badges = [];
+        needsRewrite = true;
+      }
+      if (!parsed.speaker_proposals) {
+        parsed.speaker_proposals = [];
+        needsRewrite = true;
+      }
+      if (needsRewrite) {
+        try {
+          fs.writeFileSync(/*turbopackIgnore: true*/ dbFile, JSON.stringify(parsed, null, 2), 'utf-8');
+        } catch {
+          // Ignore read-only write failure
+        }
+      }
       memoryCache = parsed;
       return parsed;
     }
@@ -257,6 +286,33 @@ function ensureDbFile(): DatabaseData {
 
 function writeDbFile(data: DatabaseData) {
   memoryCache = data;
+
+  // 1. Asynchronously persist to Supabase if configured (for Vercel serverless)
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        void (async () => {
+          try {
+            const { error } = await supabase
+              .from('app_state')
+              .upsert({
+                id: 'aws_sbg_niu',
+                data,
+                updated_at: new Date().toISOString(),
+              });
+            if (error) console.error('Supabase write error:', error);
+          } catch (err: unknown) {
+            console.error('Supabase write exception:', err);
+          }
+        })();
+      }
+    } catch (e) {
+      console.warn('Supabase write call failed:', e);
+    }
+  }
+
+  // 2. Persist to local disk (development) or /tmp (serverless)
   const { dataDir, dbFile } = getDataPaths();
 
   try {
@@ -265,13 +321,72 @@ function writeDbFile(data: DatabaseData) {
     }
     const tempFile = `${dbFile}.tmp`;
     fs.writeFileSync(/*turbopackIgnore: true*/ tempFile, JSON.stringify(data, null, 2), 'utf-8');
-    fs.renameSync(/*turbopackIgnore: true*/ tempFile, dbFile);
+    try {
+      fs.renameSync(/*turbopackIgnore: true*/ tempFile, dbFile);
+    } catch {
+      // Fallback for Windows if rename fails due to open handle or lock
+      fs.writeFileSync(/*turbopackIgnore: true*/ dbFile, JSON.stringify(data, null, 2), 'utf-8');
+      try {
+        fs.unlinkSync(/*turbopackIgnore: true*/ tempFile);
+      } catch {}
+    }
   } catch (err) {
     console.warn('Disk write failed (likely read-only serverless environment), kept in memoryCache:', err);
   }
 }
 
 export const dbStore = {
+  // Cloud Sync for Vercel / Production
+  async ensureLoaded(): Promise<DatabaseData> {
+    if (isSupabaseConfigured()) {
+      try {
+        const supabase = getSupabaseClient();
+        if (supabase) {
+          const { data, error } = await supabase
+            .from('app_state')
+            .select('data')
+            .eq('id', 'aws_sbg_niu')
+            .maybeSingle();
+
+          if (data && data.data) {
+            memoryCache = data.data as DatabaseData;
+            return memoryCache;
+          }
+
+          // If no row exists yet in Supabase, seed it with the current local dataset
+          if (!data || !data.data) {
+            const seed = ensureDbFile();
+            await supabase.from('app_state').upsert({
+              id: 'aws_sbg_niu',
+              data: seed,
+              updated_at: new Date().toISOString(),
+            });
+            memoryCache = seed;
+            return seed;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load from Supabase app_state table, falling back to local store:', err);
+      }
+    }
+
+    return ensureDbFile();
+  },
+
+  async syncToCloud(data?: DatabaseData): Promise<void> {
+    const target = data || memoryCache || ensureDbFile();
+    if (isSupabaseConfigured()) {
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        await supabase.from('app_state').upsert({
+          id: 'aws_sbg_niu',
+          data: target,
+          updated_at: new Date().toISOString(),
+        });
+      }
+    }
+    writeDbFile(target);
+  },
   // Profiles
   getProfiles(): ProfileRecord[] {
     const db = ensureDbFile();

@@ -1,15 +1,18 @@
 import { Metadata } from 'next';
-import { siteConfig } from '@/config/site';
+import { siteConfig as staticSiteConfig } from '@/config/site';
+import { getLiveSiteConfig } from '@/lib/siteSettings';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { BadgeCanvas } from '@/components/badge-canvas';
 import { db } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
-  title: `Generate Your Community Badge | ${siteConfig.shortName}`,
+  title: `Generate Your Community Badge | ${staticSiteConfig.shortName}`,
   description: `Create and download your official customized attendee, member, speaker, or volunteer badge for the AWS Student Builder Group at Noida International University.`,
   openGraph: {
-    title: `Badge Generator | ${siteConfig.shortName}`,
+    title: `Badge Generator | ${staticSiteConfig.shortName}`,
     description: `Customize and download your 1080x1350 community badge with #AWSSBGNIU.`,
     url: '/badge',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
@@ -21,12 +24,14 @@ interface BadgePageProps {
 }
 
 export default async function BadgePage({ searchParams }: BadgePageProps) {
+  await db.ensureLoaded();
   const { name, role } = await searchParams;
+  const siteConfig = getLiveSiteConfig();
   const featuredEvent = db.getFeaturedUpcomingEvent();
 
   return (
     <div className="min-h-screen bg-transparent text-white flex flex-col">
-      <Navbar featuredEvent={featuredEvent} />
+      <Navbar featuredEvent={featuredEvent} config={siteConfig} />
 
       <main className="flex-1 pt-32 pb-24">
         <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 space-y-12">
@@ -55,7 +60,7 @@ export default async function BadgePage({ searchParams }: BadgePageProps) {
         </div>
       </main>
 
-      <Footer />
+      <Footer config={siteConfig} />
     </div>
   );
 }

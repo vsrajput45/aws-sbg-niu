@@ -1,30 +1,34 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { siteConfig } from '@/config/site';
+import { siteConfig as staticSiteConfig } from '@/config/site';
+import { getLiveSiteConfig } from '@/lib/siteSettings';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { EventDetailClient } from '@/components/event-detail-client';
+
+export const dynamic = 'force-dynamic';
 
 interface EventPageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: EventPageProps): Promise<Metadata> {
+  await db.ensureLoaded();
   const { slug } = await params;
   const event = db.getEventBySlug(slug, true); // check if exists
 
   if (!event || event.status === 'draft') {
     return {
-      title: `Event Not Found | ${siteConfig.shortName}`,
+      title: `Event Not Found | ${staticSiteConfig.shortName}`,
     };
   }
 
   return {
-    title: `${event.title} | ${siteConfig.shortName}`,
+    title: `${event.title} | ${staticSiteConfig.shortName}`,
     description: event.summary,
     openGraph: {
-      title: `${event.title} | ${siteConfig.chapterName}`,
+      title: `${event.title} | ${staticSiteConfig.chapterName}`,
       description: event.summary,
       url: `/events/${event.slug}`,
       images: [{ url: event.banner_url || '/og-image.jpg', width: 1200, height: 630 }],
@@ -39,7 +43,9 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
 }
 
 export default async function EventDetailPage({ params }: EventPageProps) {
+  await db.ensureLoaded();
   const { slug } = await params;
+  const siteConfig = getLiveSiteConfig();
   const event = db.getEventBySlug(slug, false); // only published for public
 
   if (!event) {
@@ -94,7 +100,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
 
   return (
     <div className="min-h-screen bg-transparent text-white flex flex-col">
-      <Navbar featuredEvent={event} />
+      <Navbar featuredEvent={event} config={siteConfig} />
 
       {/* Inject JSON-LD */}
       <script
@@ -108,7 +114,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
         </div>
       </main>
 
-      <Footer />
+      <Footer config={siteConfig} />
     </div>
   );
 }

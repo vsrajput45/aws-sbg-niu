@@ -6,6 +6,7 @@ import { AdminNav } from '@/components/admin/admin-nav';
 import { formatDate } from '@/lib/utils';
 
 export default async function AdminEventsListPage() {
+  await db.ensureLoaded();
   const session = await getSession();
   const allEvents = db.getAllEvents(true);
 

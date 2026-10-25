@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 
@@ -37,6 +38,10 @@ export async function PATCH(
       return NextResponse.json({ error: 'Badge application not found' }, { status: 404 });
     }
 
+    revalidatePath('/', 'layout');
+    revalidatePath('/badge');
+    revalidatePath('/admin/badges');
+
     return NextResponse.json({ success: true, badge: updated });
   } catch (error) {
     console.error('Error updating badge:', error);
@@ -59,6 +64,10 @@ export async function DELETE(
     if (!deleted) {
       return NextResponse.json({ error: 'Badge not found' }, { status: 404 });
     }
+
+    revalidatePath('/', 'layout');
+    revalidatePath('/badge');
+    revalidatePath('/admin/badges');
 
     return NextResponse.json({ success: true });
   } catch (error) {

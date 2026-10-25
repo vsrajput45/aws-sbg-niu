@@ -3,7 +3,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, MapPin, ArrowRight, ExternalLink } from 'lucide-react';
 import { db } from '@/lib/db';
-import { siteConfig } from '@/config/site';
+import { siteConfig as staticSiteConfig } from '@/config/site';
+import { getLiveSiteConfig } from '@/lib/siteSettings';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { formatDate } from '@/lib/utils';
@@ -11,17 +12,19 @@ import { formatDate } from '@/lib/utils';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: `Events & Workshops | ${siteConfig.shortName}`,
+  title: `Events & Workshops | ${staticSiteConfig.shortName}`,
   description: `Discover upcoming hands-on cloud workshops, architectural sessions, and technical meetups by the AWS Student Builder Group at Noida International University.`,
   openGraph: {
-    title: `Events & Workshops | ${siteConfig.shortName}`,
+    title: `Events & Workshops | ${staticSiteConfig.shortName}`,
     description: `Upcoming technical workshops and cloud sessions at Noida International University.`,
     url: '/events',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
   },
 };
 
-export default function EventsListingPage() {
+export default async function EventsListingPage() {
+  await db.ensureLoaded();
+  const siteConfig = getLiveSiteConfig();
   const publishedEvents = db.getAllEvents(false); // Only published events
   const today = new Date().toISOString().split('T')[0];
 
@@ -37,7 +40,7 @@ export default function EventsListingPage() {
 
   return (
     <div className="min-h-screen bg-transparent text-white flex flex-col">
-      <Navbar featuredEvent={featuredEvent} />
+      <Navbar featuredEvent={featuredEvent} config={siteConfig} />
 
       <main className="flex-1 pt-32 pb-20">
         <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 space-y-12">
@@ -211,7 +214,7 @@ export default function EventsListingPage() {
         </div>
       </main>
 
-      <Footer />
+      <Footer config={siteConfig} />
     </div>
   );
 }

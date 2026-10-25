@@ -10,8 +10,9 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   BarChart3,
 };
 
-export function FocusAreas() {
-  const { focusAreas } = siteConfig;
+export function FocusAreas({ config }: { config?: typeof siteConfig } = {}) {
+  const cfg = config || siteConfig;
+  const { focusAreas } = cfg;
 
   return (
     <section id="focus-areas" className="py-24 sm:py-32 bg-[#070312]/85 backdrop-blur-[2px] border-b border-[#231238]">

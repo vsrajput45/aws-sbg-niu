@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminSiteSettingsPage() {
+  await db.ensureLoaded();
   const session = await getSession();
   const currentSettings = db.getSiteSettings();
 

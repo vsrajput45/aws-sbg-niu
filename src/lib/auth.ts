@@ -90,6 +90,9 @@ export async function verifyCredentials(email: string, password: string): Promis
       normalizedEmail === 'aws.sbg@niu.ac.in' ||
       normalizedEmail === 'admin@niu.ac.in' ||
       normalizedEmail === 'editor@niu.ac.in' ||
+      normalizedEmail === 'admin' ||
+      normalizedEmail === 'aws' ||
+      normalizedEmail === 'editor' ||
       (adminEmailEnv && normalizedEmail === adminEmailEnv);
 
     if (isKnownAdmin) {

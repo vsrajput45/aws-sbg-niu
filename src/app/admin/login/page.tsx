@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Lock, User, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 
 function LoginForm() {
@@ -70,22 +70,22 @@ function LoginForm() {
       <form className="space-y-5" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="email" className="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-2">
-            Organizer Email
+            Username
           </label>
           <div className="relative rounded-md shadow-sm">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
-              <Mail className="h-4 w-4" />
+              <User className="h-4 w-4" />
             </div>
             <input
               id="email"
               name="email"
-              type="email"
-              autoComplete="email"
+              type="text"
+              autoComplete="username"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="block w-full pl-10 pr-3 py-2.5 bg-[#181818] border border-[#333333] rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#FF9900] focus:ring-1 focus:ring-[#FF9900] transition"
-              placeholder="aws@niu.ac.in"
+              placeholder="Username"
             />
           </div>
         </div>
@@ -107,7 +107,7 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="block w-full pl-10 pr-3 py-2.5 bg-[#181818] border border-[#333333] rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-[#FF9900] focus:ring-1 focus:ring-[#FF9900] transition"
-              placeholder="••••••••••••"
+              placeholder="Password"
             />
           </div>
         </div>
@@ -118,7 +118,7 @@ function LoginForm() {
             disabled={loading}
             className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-lg text-xs font-bold uppercase tracking-widest text-black bg-[#FF9900] hover:bg-[#FFAA22] active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer shadow-lg shadow-[#FF9900]/20"
           >
-            {loading ? 'Authenticating...' : 'Sign In to Admin Console'}
+            {loading ? 'Authenticating...' : 'Sign In'}
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

@@ -81,4 +81,15 @@ export const coreTeam: TeamMember[] = [
     session: "2026-27",
     badge: "Content & Branding",
   },
+  {
+    name: "Khusi Kumari",
+    role: "Event Coordinator",
+    department: "Computer Science & Engineering",
+    bio: "Coordinating event logistics, student registrations, venue readiness, and attendee coordination for AWS Student Builder Group at NIU.",
+    avatarUrl: "/team/khusi-kumari.jpg",
+    cardUrl: "/team/khusi-kumari-card.jpg",
+    initials: "KK",
+    session: "2026-27",
+    badge: "Event Operations",
+  },
 ];

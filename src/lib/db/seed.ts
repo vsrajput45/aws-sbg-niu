@@ -234,5 +234,18 @@ export const initialTeamMembers: TeamMemberRecord[] = [
     badge: "Content & Branding",
     sort_order: 6,
   },
+  {
+    id: "tm-7",
+    name: "Khusi Kumari",
+    role: "Event Coordinator",
+    department: "Computer Science & Engineering",
+    bio: "Coordinating event logistics, student registrations, venue readiness, and attendee coordination for AWS Student Builder Group at NIU.",
+    avatarUrl: "/team/khusi-kumari.jpg",
+    cardUrl: "/team/khusi-kumari-card.jpg",
+    initials: "KK",
+    session: "2026-27",
+    badge: "Event Operations",
+    sort_order: 7,
+  },
 ];
 

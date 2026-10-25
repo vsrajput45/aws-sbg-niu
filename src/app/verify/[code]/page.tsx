@@ -7,7 +7,7 @@ import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { 
   CheckCircle2, AlertTriangle, ShieldCheck, 
-  Calendar, Building, User, Award, ArrowLeft, QrCode
+  Calendar, Building, User, Award, ArrowLeft, QrCode, Download
 } from 'lucide-react';
 import { ModernQrCard } from '@/components/modern-qr-card';
 
@@ -154,13 +154,14 @@ export default async function VerifyBadgePage({ params }: VerifyPageProps) {
               <div className="flex flex-col sm:flex-row items-center gap-3">
                 <Link
                   href={`/badge?name=${encodeURIComponent(badge.full_name)}&role=${encodeURIComponent(badge.role)}`}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#FF9900] text-white text-xs font-bold uppercase tracking-wider text-center transition hover:brightness-110 shadow-lg shadow-purple-950/40"
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#FF9900] text-white text-xs font-bold uppercase tracking-wider text-center transition hover:brightness-110 shadow-lg shadow-purple-950/40 flex items-center justify-center gap-2"
                 >
-                  View &amp; Render Badge Image
+                  <Download className="w-4 h-4" />
+                  <span>Download / Render Full Badge (1080×1350 PNG)</span>
                 </Link>
                 <Link
                   href="/badge"
-                  className="w-full py-3 px-4 rounded-xl bg-[#140F35] border border-[#2B1D52] hover:bg-[#1E174E] text-slate-200 text-xs font-semibold uppercase tracking-wider text-center transition"
+                  className="w-full sm:w-auto shrink-0 py-3 px-4 rounded-xl bg-[#140F35] border border-[#2B1D52] hover:bg-[#1E174E] text-slate-200 text-xs font-semibold uppercase tracking-wider text-center transition"
                 >
                   Create Another Badge
                 </Link>

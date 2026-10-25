@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { generateModernQrDataUrl } from '@/lib/modernQr';
-import { Sparkles, Copy, Check, QrCode } from 'lucide-react';
+import { Sparkles, Copy, Check, QrCode, Download } from 'lucide-react';
 
 interface ModernQrCardProps {
   code: string;
@@ -16,7 +16,7 @@ export function ModernQrCard({ code, fullName, role }: ModernQrCardProps) {
 
   useEffect(() => {
     let active = true;
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://aws-sbg-niu.ac.in';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://aws-sbg-niu.vercel.app';
     const verifyPayload = `${origin}/verify/${code.trim().toUpperCase()}`;
 
     generateModernQrDataUrl(verifyPayload, {
@@ -40,12 +40,20 @@ export function ModernQrCard({ code, fullName, role }: ModernQrCardProps) {
   }, [code]);
 
   const handleCopy = () => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://aws-sbg-niu.ac.in';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://aws-sbg-niu.vercel.app';
     const verifyUrl = `${origin}/verify/${code.trim().toUpperCase()}`;
     navigator.clipboard.writeText(verifyUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const handleDownloadQr = () => {
+    if (!qrUrl) return;
+    const a = document.createElement('a');
+    a.href = qrUrl;
+    a.download = `AWS-QR-${code.trim().toUpperCase()}.png`;
+    a.click();
   };
 
   return (
@@ -97,6 +105,18 @@ export function ModernQrCard({ code, fullName, role }: ModernQrCardProps) {
               </>
             )}
           </button>
+
+          {qrUrl && (
+            <button
+              type="button"
+              onClick={handleDownloadQr}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#15233E] hover:bg-[#1E3258] border border-[#263D68] text-xs text-[#FF9900] font-medium transition"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Download QR Code</span>
+            </button>
+          )}
+
           <span className="text-[11px] font-mono text-slate-400">
             Pass: <span className="text-white font-bold">{code}</span>
           </span>
@@ -105,3 +125,4 @@ export function ModernQrCard({ code, fullName, role }: ModernQrCardProps) {
     </div>
   );
 }
+

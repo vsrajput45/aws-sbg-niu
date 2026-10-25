@@ -6,7 +6,7 @@ import { generateModernQrDataUrl } from '@/lib/modernQr';
 import { 
   Award, CheckCircle2, Clock, XCircle, Search, Filter, 
   ExternalLink, QrCode, ShieldCheck, IndianRupee, RefreshCw, 
-  Trash2, UserCheck, AlertCircle, Eye, Sparkles, Copy, Download
+  Trash2, UserCheck, AlertCircle, Eye, Sparkles, Copy, Download, Mail
 } from 'lucide-react';
 import { BadgeApplicationRecord, BadgeStatus } from '@/lib/db';
 
@@ -26,6 +26,8 @@ export function BadgeAdminClient({ initialBadges }: BadgeAdminClientProps) {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [submittingCode, setSubmittingCode] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailStatusMsg, setEmailStatusMsg] = useState<string | null>(null);
 
   const handleCopyLink = () => {
     if (!selectedBadge?.code) return;
@@ -42,6 +44,27 @@ export function BadgeAdminClient({ initialBadges }: BadgeAdminClientProps) {
     a.href = modalQrUrl;
     a.download = `AWS-QR-${selectedBadge.code}.png`;
     a.click();
+  };
+
+  const handleSendEmail = async () => {
+    if (!selectedBadge) return;
+    setSendingEmail(true);
+    setEmailStatusMsg(null);
+    try {
+      const res = await fetch(`/api/admin/badges/${selectedBadge.id}`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setEmailStatusMsg(data.message || `Official pass sent to ${selectedBadge.email}!`);
+      } else {
+        setEmailStatusMsg(data.error || 'Failed to dispatch email.');
+      }
+    } catch {
+      setEmailStatusMsg('Network error while dispatching email.');
+    } finally {
+      setSendingEmail(false);
+    }
   };
 
   useEffect(() => {
@@ -684,6 +707,24 @@ export function BadgeAdminClient({ initialBadges }: BadgeAdminClientProps) {
                 >
                   Close
                 </button>
+              </div>
+
+              {/* Email Pass to User */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  disabled={sendingEmail}
+                  onClick={handleSendEmail}
+                  className="w-full py-2 px-3 bg-gradient-to-r from-purple-900/40 via-[#261546] to-purple-950/40 hover:from-purple-900/60 hover:to-purple-900/60 border border-purple-500/40 text-purple-200 text-xs font-bold rounded-lg transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  <Mail className="w-3.5 h-3.5 text-[#FF9900]" />
+                  <span>{sendingEmail ? 'Sending Pass Email...' : `Email Pass to ${selectedBadge.email}`}</span>
+                </button>
+                {emailStatusMsg && (
+                  <div className="p-2 mt-1.5 text-center rounded-lg bg-black/60 border border-purple-500/30 text-[11px] text-purple-200 animate-in fade-in">
+                    {emailStatusMsg}
+                  </div>
+                )}
               </div>
             </div>
           </div>

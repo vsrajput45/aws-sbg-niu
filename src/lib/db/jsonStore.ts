@@ -96,6 +96,10 @@ export const defaultSiteSettings: SiteSettingsRecord = {
 };
 
 function ensureDbFile(): DatabaseData {
+  if (memoryCache) {
+    return memoryCache;
+  }
+
   const { dataDir, dbFile, seedFile } = getDataPaths();
 
   try {
@@ -110,6 +114,14 @@ function ensureDbFile(): DatabaseData {
       if (!parsed.team || parsed.team.length === 0) {
         parsed.team = [...initialTeamMembers];
         needsRewrite = true;
+      } else {
+        // Ensure any new official team members (e.g. Khusi Kumari) are merged if missing
+        for (const initial of initialTeamMembers) {
+          if (!parsed.team.some((m) => m.id === initial.id || m.name.toLowerCase().trim() === initial.name.toLowerCase().trim())) {
+            parsed.team.push({ ...initial });
+            needsRewrite = true;
+          }
+        }
       }
       if (!parsed.events) {
         parsed.events = [];
@@ -135,10 +147,6 @@ function ensureDbFile(): DatabaseData {
     }
   } catch (err) {
     console.warn('Could not read from dbFile:', err);
-  }
-
-  if (memoryCache) {
-    return memoryCache;
   }
 
   try {
@@ -349,7 +357,26 @@ export const dbStore = {
             .maybeSingle();
 
           if (data && data.data) {
-            memoryCache = data.data as DatabaseData;
+            const parsed = data.data as DatabaseData;
+            if (!parsed.team || parsed.team.length === 0) {
+              parsed.team = [...initialTeamMembers];
+            } else {
+              let changed = false;
+              for (const initial of initialTeamMembers) {
+                if (!parsed.team.some((m) => m.id === initial.id || m.name.toLowerCase().trim() === initial.name.toLowerCase().trim())) {
+                  parsed.team.push({ ...initial });
+                  changed = true;
+                }
+              }
+              if (changed) {
+                void supabase.from('app_state').upsert({
+                  id: 'aws_sbg_niu',
+                  data: parsed,
+                  updated_at: new Date().toISOString(),
+                });
+              }
+            }
+            memoryCache = parsed;
             return memoryCache;
           }
 

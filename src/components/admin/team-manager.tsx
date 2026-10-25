@@ -636,36 +636,41 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
               </div>
 
               {/* Social Links */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
-                    <LinkedinIcon className="w-3.5 h-3.5 text-[#0A66C2]" />
-                    <span>LinkedIn Profile URL</span>
-                  </label>
-                  <input
-                    type="url"
-                    name="linkedin_url"
-                    value={formData.linkedin_url}
-                    onChange={handleFormChange}
-                    placeholder="https://linkedin.com/in/username"
-                    className="w-full px-3 py-2 bg-[#161616] border border-[#2C2C2C] focus:border-[#FF9900] rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none transition"
-                  />
-                </div>
+              <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                      <LinkedinIcon className="w-3.5 h-3.5 text-[#0A66C2]" />
+                      <span>LinkedIn Profile URL</span>
+                    </label>
+                    <input
+                      type="url"
+                      name="linkedin_url"
+                      value={formData.linkedin_url}
+                      onChange={handleFormChange}
+                      placeholder="https://linkedin.com/in/username"
+                      className="w-full px-3 py-2 bg-[#161616] border border-[#2C2C2C] focus:border-[#FF9900] rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none transition"
+                    />
+                  </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
-                    <GithubIcon className="w-3.5 h-3.5 text-gray-300" />
-                    <span>GitHub Profile URL</span>
-                  </label>
-                  <input
-                    type="url"
-                    name="github_url"
-                    value={formData.github_url}
-                    onChange={handleFormChange}
-                    placeholder="https://github.com/username"
-                    className="w-full px-3 py-2 bg-[#161616] border border-[#2C2C2C] focus:border-[#FF9900] rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none transition"
-                  />
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                      <GithubIcon className="w-3.5 h-3.5 text-gray-300" />
+                      <span>GitHub Profile URL</span>
+                    </label>
+                    <input
+                      type="url"
+                      name="github_url"
+                      value={formData.github_url}
+                      onChange={handleFormChange}
+                      placeholder="https://github.com/username"
+                      className="w-full px-3 py-2 bg-[#161616] border border-[#2C2C2C] focus:border-[#FF9900] rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none transition"
+                    />
+                  </div>
                 </div>
+                <p className="text-[11px] text-gray-400">
+                  Yeh links website ke team canvas cards aur appointment poster modal me clickable buttons ke roop me dikhayi dengi.
+                </p>
               </div>
 
               {/* Submit Button */}

@@ -10,6 +10,8 @@ export interface TeamMember {
   initials: string;
   session: string;
   badge: string;
+  linkedin_url?: string;
+  github_url?: string;
 }
 
 export const coreTeam: TeamMember[] = [

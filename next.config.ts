@@ -44,6 +44,18 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  async rewrites() {
+    return [
+      {
+        source: "/v/:code",
+        destination: "/verify/:code",
+      },
+      {
+        source: "/gate/:code",
+        destination: "/verify/:code",
+      },
+    ];
+  },
   async headers() {
     return [
       {

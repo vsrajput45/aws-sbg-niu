@@ -215,6 +215,8 @@ export interface BadgeApplicationRecord {
   theme: 'sbg' | 'classic';
   verified_by?: string | null;
   verified_at?: string | null;
+  checked_in?: boolean;
+  checked_in_at?: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { getLiveSiteConfig } from '@/lib/siteSettings';
+import { getSession } from '@/lib/auth';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { 
@@ -10,6 +11,7 @@ import {
   Calendar, Building, User, Award, ArrowLeft, QrCode, Download
 } from 'lucide-react';
 import { ModernQrCard } from '@/components/modern-qr-card';
+import { GateCheckinCard } from '@/components/gate-checkin-card';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,9 +29,14 @@ export async function generateMetadata({ params }: VerifyPageProps): Promise<Met
 
 export default async function VerifyBadgePage({ params }: VerifyPageProps) {
   await db.ensureLoaded();
+  const session = await getSession();
+  const isAdmin = Boolean(session?.role);
   const { code } = await params;
   const siteConfig = getLiveSiteConfig();
   const badge = db.getBadgeByCode(code);
+  const registration = badge?.email ? db.getRegistrationByEmail(badge.email) : undefined;
+  const isCheckedIn = Boolean(badge?.checked_in || registration?.checked_in);
+  const checkedInAt = badge?.checked_in_at || registration?.checked_in_at || null;
   const featuredEvent = db.getFeaturedUpcomingEvent();
 
   // If badge is not found in database, show a simulated active verification for demo or notFound
@@ -86,6 +93,16 @@ export default async function VerifyBadgePage({ params }: VerifyPageProps) {
                   {badge.role}
                 </div>
               </div>
+
+              {/* Gate Check-In & Duplicate Scanner Status Card */}
+              <GateCheckinCard
+                code={badge.code || code}
+                fullName={badge.full_name}
+                initialCheckedIn={isCheckedIn}
+                initialCheckedInAt={checkedInAt}
+                isAdmin={isAdmin}
+                adminEmail={session?.email}
+              />
 
               {/* Credential Details Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5 rounded-2xl bg-[#140F35] border border-[#261B48] text-xs">

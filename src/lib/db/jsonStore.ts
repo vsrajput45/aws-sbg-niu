@@ -1051,6 +1051,52 @@ export const dbStore = {
     return true;
   },
 
+  checkInBadge(code: string, action: 'admit' | 'undo' = 'admit'): { 
+    badge: BadgeApplicationRecord; 
+    checked_in: boolean; 
+    checked_in_at: string | null;
+    previously_checked_in?: boolean;
+    registration?: RegistrationRecord;
+  } | null {
+    const db = ensureDbFile();
+    const cleanCode = code.trim().toLowerCase();
+    const badge = db.badges?.find((b) => b.code && b.code.toLowerCase() === cleanCode);
+    if (!badge) return null;
+
+    const now = new Date().toISOString();
+    const previouslyCheckedIn = Boolean(badge.checked_in);
+
+    if (action === 'undo') {
+      badge.checked_in = false;
+      badge.checked_in_at = null;
+    } else {
+      if (!badge.checked_in) {
+        badge.checked_in = true;
+        badge.checked_in_at = now;
+      }
+    }
+    badge.updated_at = now;
+
+    // Also sync matching registration if any
+    let registration: RegistrationRecord | undefined;
+    if (badge.email) {
+      registration = db.registrations?.find((r) => r.email.toLowerCase() === badge.email.toLowerCase());
+      if (registration) {
+        registration.checked_in = badge.checked_in || false;
+        registration.checked_in_at = badge.checked_in_at || null;
+      }
+    }
+
+    writeDbFile(db);
+    return {
+      badge,
+      checked_in: Boolean(badge.checked_in),
+      checked_in_at: badge.checked_in_at || null,
+      previously_checked_in: previouslyCheckedIn,
+      registration
+    };
+  },
+
   createSpeakerProposal(params: {
     fullName: string;
     email: string;

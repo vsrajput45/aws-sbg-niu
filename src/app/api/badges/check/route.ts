@@ -10,19 +10,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
-    // Check if the candidate is already registered for any event
+    // Check if candidate is registered for any event
     const registration = db.getRegistrationByEmail(email);
     const allRegistrations = db.getAllRegistrations().filter((r) => r.email.toLowerCase() === email);
 
-    // Also check if they already have an issued badge
+    // Also check if they already have an issued badge (1 email = 1 badge limit)
     const existingBadge = db.getBadgeByEmail(email);
-
-    const siteSettings = db.getSiteSettings();
-    const upiDetails = {
-      upi_id: siteSettings.upiId || 'aws-sbg@niu',
-      upi_name: siteSettings.upiName || 'AWS SBG NIU',
-      upi_qr_image_url: siteSettings.upiQrImageUrl || null,
-    };
 
     if (registration || allRegistrations.length > 0) {
       const activeReg = registration || allRegistrations[0];
@@ -30,7 +23,6 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({
         registered: true,
-        eligibleForFreeBadge: true,
         source: 'event_registration',
         registration: {
           id: activeReg.id,
@@ -43,20 +35,16 @@ export async function GET(request: NextRequest) {
           event_title: event?.title || 'AWS SBG Official Event',
         },
         existingBadge: existingBadge || null,
-        ...upiDetails,
-        message: 'Congratulations! You are an active registered event participant. Your official conference badge is 100% FREE.',
+        message: existingBadge?.code
+          ? `Event registration confirmed. Official badge pass is active: ${existingBadge.code}`
+          : 'Event registration confirmed! You are authorized to generate your official pass (Limit: 1 badge per candidate).',
       });
     }
 
     return NextResponse.json({
       registered: false,
-      eligibleForFreeBadge: false,
-      source: 'community_donation',
-      existingBadge: existingBadge || null,
-      minDonation: 49,
-      suggestedDonations: [49, 99, 199],
-      ...upiDetails,
-      message: 'Not currently registered for an upcoming event. You can claim an official Community Supporter Pass with a nominal community donation to support student cloud initiatives.',
+      existingBadge: null,
+      message: 'Badge sirf event registered candidates ko hi mil sakta hai. Bina event register kiye badge generate nahi ho sakta. Kripya pehle event ke liye register karein.',
     });
   } catch (error) {
     console.error('Error checking badge eligibility:', error);

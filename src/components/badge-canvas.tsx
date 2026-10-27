@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Download, ShieldCheck, Camera, Sparkles, RefreshCw, Palette, Lock } from 'lucide-react';
-import { UpiPaymentCard } from '@/components/upi-payment-card';
 import { drawModernQrOnContext } from '@/lib/modernQr';
 
 interface BadgeCanvasProps {
@@ -74,12 +73,10 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
   // Verification & Claim States
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
   const [isClaimed, setIsClaimed] = useState(false);
-  const [claimSource, setClaimSource] = useState<'event_registration' | 'community_donation' | null>(null);
+  const [claimSource, setClaimSource] = useState<'event_registration' | 'community_member' | 'community_donation' | null>(null);
   const [claimEventTitle, setClaimEventTitle] = useState<string | null>(null);
   const [checkingEligibility, setCheckingEligibility] = useState(false);
   const [eligibilityResult, setEligibilityResult] = useState<any>(null);
-  const [donationAmount, setDonationAmount] = useState<number>(49);
-  const [donationUtr, setDonationUtr] = useState<string>('');
   const [submittingClaim, setSubmittingClaim] = useState(false);
   const [downloadedBadge, setDownloadedBadge] = useState<string | null>(null);
 
@@ -710,70 +707,76 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
   };
 
   const handleApplyBadge = async () => {
-    if (!fullName.trim() || !email.trim()) {
-      alert('Please enter your full name and email address.');
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) {
+      setIsClaimModalOpen(true);
+      return;
+    }
+
+    if (eligibilityResult && !eligibilityResult.registered) {
+      alert('❌ Badge sirf event registered candidates ko hi mil sakta hai.\nBina event register kiye badge nahi mil sakta. Kripya pehle kisi event ke liye register karein.');
       return;
     }
 
     setSubmittingClaim(true);
     try {
-      const isFree = eligibilityResult?.registered;
       const res = await fetch('/api/badges/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          email: cleanEmail,
           full_name: fullName,
-          email,
           role,
           institution,
           theme,
           access_level: accessLevel,
-          donation_amount: isFree ? 0 : donationAmount,
-          donation_utr: isFree ? null : donationUtr,
         }),
       });
 
       const data = await res.json();
       if (res.ok && data.badge) {
-        if (data.badge.code && data.badge.status === 'verified') {
+        if (data.badge.code) {
           setBadgeCode(data.badge.code);
           setIsClaimed(true);
           setClaimSource(data.badge.source);
           setClaimEventTitle(data.badge.event_title);
+          if (data.badge.full_name) setFullName(data.badge.full_name);
+          if (data.badge.role) setRole(data.badge.role);
+          if (data.badge.institution) setInstitution(data.badge.institution);
           setIsClaimModalOpen(false);
+
+          if (data.alreadyIssued) {
+            alert('ℹ️ Aapka official badge already issued hai (1 email se sirf 1 badge allow hai). Badge load ho gaya hai!');
+          }
 
           // Immediate Download
           setTimeout(() => {
             handleDownload();
           }, 600);
-        } else {
-          setBadgeCode(null);
-          setIsClaimed(false);
-          setIsClaimModalOpen(false);
-          alert(
-            isFree
-              ? '✅ Application Submitted to Admin!\nYour event registration was verified. Your application is now in the Admin Console.\n\nAdmin will generate and issue your official pass code. Once issued, enter your email here to download your active badge!'
-              : `✅ Application Submitted to Admin!\nThank you for supporting student builders (Contribution: ₹${donationAmount}, UTR: ${donationUtr || 'N/A'}).\n\nAdmin will verify your payment and generate your official pass code in the Admin Console.`
-          );
         }
       } else {
-        alert(data.error || 'Failed to submit badge application.');
+        alert(data.error || 'Failed to verify badge.');
       }
     } catch {
-      alert('Network error while claiming badge.');
+      alert('Network error while verifying badge.');
     } finally {
       setSubmittingClaim(false);
     }
   };
 
   const handleDownloadClick = () => {
-    if (!isClaimed) {
-      setIsClaimModalOpen(true);
-      if (!eligibilityResult && email) {
+    if (badgeCode) {
+      handleDownload();
+    } else {
+      if (!email.trim()) {
+        setIsClaimModalOpen(true);
+      } else if (eligibilityResult?.registered) {
+        handleApplyBadge();
+      } else if (eligibilityResult && !eligibilityResult.registered) {
+        alert('❌ Badge sirf event registered candidates ko hi mil sakta hai. Kripya pehle kisi event ke liye register karein.');
+      } else {
         handleCheckEligibility(email);
       }
-    } else {
-      handleDownload();
     }
   };
 
@@ -806,22 +809,20 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
               Badge Personalization
             </h2>
             <p className="text-xs text-purple-200/70">
-              Free for registered event attendees • Community donation for supporters.
+              Exclusively for registered event participants • Strictly 1 official badge per candidate.
             </p>
           </div>
 
           {/* Verification Status Banner */}
-          {isClaimed ? (
+          {isClaimed && badgeCode ? (
             <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
               <div className="space-y-1 text-xs">
                 <span className="font-bold text-emerald-400 block">
-                  Pass Active &amp; Verified: {badgeCode}
+                  Official Pass Active: {badgeCode}
                 </span>
                 <p className="text-slate-300 text-[11px]">
-                  {claimSource === 'event_registration'
-                    ? `Complimentary Event Pass (${claimEventTitle || 'Registered'})`
-                    : 'Verified Community Supporter Pass'}
+                  Registered Event Pass ({claimEventTitle || 'Event Participant'}) • 1 Badge per Candidate
                 </p>
                 <Link
                   href={`/verify/${badgeCode}`}
@@ -832,23 +833,42 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
                 </Link>
               </div>
             </div>
+          ) : eligibilityResult && !eligibilityResult.registered ? (
+            <div className="p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/40 space-y-2">
+              <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider">
+                <Lock className="w-4 h-4" />
+                <span>Event Registration Required</span>
+              </div>
+              <p className="text-slate-300 text-[11px] leading-relaxed">
+                Badge sirf event registered candidates ko hi mil sakta hai. Bina event register kiye badge generate nahi ho sakta.
+              </p>
+              <Link
+                href="/#events"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FF9900] text-black text-xs font-bold hover:bg-[#FFAA22] transition"
+              >
+                Register for an Event &rarr;
+              </Link>
+            </div>
           ) : (
             <div className="p-3.5 rounded-xl bg-gradient-to-r from-[#A855F7]/15 via-[#EC4899]/15 to-[#FF9900]/15 border border-[#FF9900]/40 flex items-center justify-between gap-3">
               <div className="text-xs">
-                <span className="font-bold text-white block">Official Verification Required</span>
+                <span className="font-bold text-white block">Event Delegate Pass</span>
                 <span className="text-purple-200/80 text-[11px]">
-                  Free for event delegates • Donation for non-registered
+                  Enter registered email below to unlock your pass
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => {
-                  setIsClaimModalOpen(true);
-                  if (!eligibilityResult && email) handleCheckEligibility(email);
+                  if (email.trim()) {
+                    handleCheckEligibility(email);
+                  } else {
+                    setIsClaimModalOpen(true);
+                  }
                 }}
                 className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#8B5CF6] to-[#FF9900] text-white text-xs font-bold uppercase tracking-wider shrink-0 hover:scale-[1.02] transition shadow-md cursor-pointer"
               >
-                Apply Now
+                Verify Email
               </button>
             </div>
           )}
@@ -891,7 +911,7 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
             {/* Email Address with Check Button */}
             <div>
               <label className="block text-xs font-medium text-purple-200 uppercase tracking-wider mb-2">
-                Applicant Email (For Free Event Pass Verification) *
+                Registered Event Email *
               </label>
               <div className="flex gap-2">
                 <input
@@ -908,7 +928,7 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
                     setClaimEventTitle(null);
                     setDownloadedBadge(null);
                   }}
-                  placeholder="e.g. name@niu.ac.in"
+                  placeholder="Enter your registered event email"
                   className="flex-1 px-3.5 py-2.5 bg-[#17123B] border border-[#30235C] rounded-xl text-white text-sm focus:outline-none focus:border-[#FF9900] transition"
                 />
                 <button
@@ -917,7 +937,7 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
                   disabled={checkingEligibility}
                   className="px-3.5 py-2.5 bg-[#251A52] hover:bg-[#342470] border border-[#432A85] text-xs font-bold text-white rounded-xl transition cursor-pointer shrink-0"
                 >
-                  {checkingEligibility ? 'Checking...' : 'Check Status'}
+                  {checkingEligibility ? 'Verifying...' : 'Check Status'}
                 </button>
               </div>
               {eligibilityResult && (
@@ -925,11 +945,12 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
                   {eligibilityResult.registered ? (
                     <span className="text-emerald-400 font-semibold flex items-center gap-1">
                       <ShieldCheck className="w-3.5 h-3.5" />
-                      Event Participant Verified! (100% Free Badge)
+                      Event Participant Verified! Authorized for 1 official pass.
                     </span>
                   ) : (
-                    <span className="text-amber-400 font-semibold">
-                      Not registered for an event &bull; ₹49+ Community Donation applies
+                    <span className="text-rose-400 font-semibold flex items-center gap-1">
+                      <Lock className="w-3.5 h-3.5" />
+                      Registration Not Found: Badge sirf event registered candidates ko hi milega.
                     </span>
                   )}
                 </div>
@@ -1102,18 +1123,26 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
 
           {/* Primary Action Button */}
           <div className="pt-2 space-y-2">
-            {!isClaimed || !badgeCode ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setIsClaimModalOpen(true);
-                  if (!eligibilityResult && email) handleCheckEligibility(email);
-                }}
-                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#FF9900] hover:brightness-110 text-white text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.01] shadow-xl shadow-purple-950/50 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <ShieldCheck className="w-4 h-4" />
-                <span>Apply for Official Pass Code (Admin Issuance)</span>
-              </button>
+            {!badgeCode ? (
+              eligibilityResult && !eligibilityResult.registered ? (
+                <Link
+                  href="/#events"
+                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-600 via-orange-600 to-[#FF9900] hover:brightness-110 text-white text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.01] shadow-xl flex items-center justify-center gap-2 cursor-pointer text-center"
+                >
+                  <Lock className="w-4 h-4" />
+                  <span>Register for an Event to Unlock Badge &rarr;</span>
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleDownloadClick}
+                  disabled={submittingClaim}
+                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#FF9900] hover:brightness-110 text-white text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.01] shadow-xl shadow-purple-950/50 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>{submittingClaim ? 'Verifying Event Pass...' : 'Verify Registration & Download Official Pass'}</span>
+                </button>
+              )
             ) : (
               <div className="space-y-1.5">
                 <button
@@ -1127,7 +1156,7 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
                 </button>
                 <p className="text-[11px] text-center text-emerald-400/90 font-mono">
                   {downloadedBadge === badgeCode
-                    ? `✓ Official Pass Code ${badgeCode} issued to ${fullName}`
+                    ? `✓ Official Pass Code ${badgeCode} issued (1 badge per registered email)`
                     : `Official Credential Bound to ${fullName} (${email})`}
                 </p>
               </div>
@@ -1159,7 +1188,7 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
           <div className="p-3 bg-[#140F35] border border-[#261B48] rounded-xl flex items-start gap-2.5 text-[11px] text-purple-200/80">
             <ShieldCheck className="w-4 h-4 text-[#FF9900] shrink-0 mt-0.5" />
             <span>
-              <strong>Official Badge Policy:</strong> Registered event attendees get free verified passes. Non-registered participants can support AWS SBG NIU via community donation.
+              <strong>Official Credential Policy:</strong> Badge generation is strictly reserved for registered event participants. Bina event register kiye badge generate nahi kiya ja sakta. Exactly 1 badge per candidate.
             </span>
           </div>
         </div>
@@ -1179,10 +1208,10 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
         </div>
       </div>
 
-      {/* Verification & Claim Modal */}
+      {/* Verification & Pass Generation Modal */}
       {isClaimModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-[#0D0A24] border border-[#3D256C] rounded-3xl w-full max-w-lg shadow-2xl relative my-auto max-h-[92vh] flex flex-col overflow-hidden">
+          <div className="bg-[#0D0A24] border border-[#3D256C] rounded-3xl w-full max-w-md shadow-2xl relative my-auto max-h-[92vh] flex flex-col overflow-hidden">
             {/* Top accent line */}
             <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#A855F7] via-[#EC4899] to-[#FF9900] z-20" />
 
@@ -1190,11 +1219,14 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
             <div className="p-5 sm:p-6 pb-3 border-b border-[#21143D] shrink-0 flex items-start justify-between">
               <div>
                 <span className="text-xs font-bold text-[#FF9900] uppercase tracking-wider block">
-                  Official Verification
+                  Official Event Delegate Pass
                 </span>
                 <h3 className="text-lg sm:text-xl font-bold text-white font-heading mt-0.5">
-                  Apply to Claim Your Badge
+                  Verify Event Registration
                 </h3>
+                <p className="text-xs text-purple-200/70 mt-1">
+                  Badges are exclusively issued to registered event delegates (Strictly 1 badge per email).
+                </p>
               </div>
               <button
                 type="button"
@@ -1205,12 +1237,12 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
               </button>
             </div>
 
-            {/* Modal Scrollable Body */}
-            <div className="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1">
-              {/* Email Check Section */}
-              <div className="space-y-2">
-                <label className="block text-xs font-medium text-purple-200 uppercase tracking-wider">
-                  Step 1: Check Event Registration
+            {/* Modal Body */}
+            <div className="p-5 sm:p-6 space-y-4 flex-1">
+              {/* Email Address */}
+              <div>
+                <label className="block text-xs font-medium text-purple-200 uppercase tracking-wider mb-1.5">
+                  Registered Event Email Address *
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -1220,104 +1252,67 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
                       setEmail(e.target.value);
                       setEligibilityResult(null);
                     }}
-                    placeholder="Enter your registered email address"
+                    placeholder="Enter your registered event email"
                     className="flex-1 px-3.5 py-2.5 bg-[#17123B] border border-[#30235C] rounded-xl text-white text-xs focus:outline-none focus:border-[#FF9900]"
                   />
                   <button
                     type="button"
                     onClick={() => handleCheckEligibility(email)}
                     disabled={checkingEligibility}
-                    className="px-4 py-2 bg-[#FF9900] text-black font-bold text-xs rounded-xl hover:bg-[#FFAA22] transition shrink-0 cursor-pointer"
+                    className="px-3.5 py-2 bg-[#FF9900] text-black font-bold text-xs rounded-xl hover:bg-[#FFAA22] transition shrink-0 cursor-pointer"
                   >
                     {checkingEligibility ? 'Verifying...' : 'Verify'}
                   </button>
                 </div>
               </div>
 
-              {/* Eligibility Outcomes */}
-              {eligibilityResult && (
-                <div>
-                  {eligibilityResult.registered ? (
-                    /* Case A: Registered -> Free Pass */
-                    <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-3">
-                      <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
-                        <ShieldCheck className="w-4 h-4" />
-                        <span>Event Registration Confirmed (100% Free Pass)</span>
-                      </div>
-                      <div className="text-xs text-slate-300 space-y-1">
-                        <div><strong>Event:</strong> {eligibilityResult.registration.event_title}</div>
-                        <div><strong>Participant:</strong> {eligibilityResult.registration.full_name} ({eligibilityResult.registration.role})</div>
-                        <div><strong>Pass Cost:</strong> <span className="text-emerald-400 font-bold">₹0.00 (Complimentary)</span></div>
-                      </div>
-                      <p className="text-[11px] text-emerald-300/80">
-                        As an active participant in our event, your verified conference credential will be instantly activated.
-                      </p>
+              {/* Eligibility Info Box */}
+              {eligibilityResult ? (
+                eligibilityResult.registered ? (
+                  <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-1.5 text-xs">
+                    <div className="flex items-center gap-1.5 text-emerald-400 font-bold uppercase tracking-wider text-[11px]">
+                      <ShieldCheck className="w-4 h-4" />
+                      <span>Event Registration Confirmed (1 Badge Authorized)</span>
                     </div>
-                  ) : (
-                    /* Case B: Not Registered -> Donation Required */
-                    <div className="p-4 rounded-2xl bg-[#140F35] border border-amber-500/30 space-y-3">
-                      <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider">
-                        <span>Not Registered for Event • Community Donation</span>
-                      </div>
-                      <p className="text-xs text-slate-300 leading-relaxed">
-                        Official badges are complimentary for registered event attendees. Since you are not registered, you can claim your official <strong>Community Supporter Pass</strong> by contributing a small donation towards our student cloud programs!
-                      </p>
-
-                      {/* Donation Preset Selector */}
-                      <div>
-                        <label className="block text-[11px] font-bold text-purple-200 uppercase tracking-wider mb-2">
-                          Select Donation Contribution (INR)
-                        </label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {[49, 99, 199].map((amt) => (
-                            <button
-                              key={amt}
-                              type="button"
-                              onClick={() => setDonationAmount(amt)}
-                              className={`py-2 rounded-xl text-xs font-bold transition border cursor-pointer ${
-                                donationAmount === amt
-                                  ? 'bg-[#FF9900] text-black border-[#FF9900]'
-                                  : 'bg-[#1E174E] text-slate-300 border-[#30235C] hover:border-slate-500'
-                              }`}
-                            >
-                              ₹{amt} {amt === 49 ? 'Supporter' : amt === 99 ? 'Builder' : 'Patron'}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Dynamic Scannable UPI QR & 1-Click Mobile Payment */}
-                      <UpiPaymentCard
-                        amount={donationAmount}
-                        upiId={eligibilityResult?.upi_id || 'aws-sbg@niu'}
-                        payeeName={eligibilityResult?.upi_name || 'AWS SBG NIU'}
-                        transactionNote={`AWS SBG Supporter Pass - ${fullName || 'Attendee'}`}
-                        customQrUrl={eligibilityResult?.upi_qr_image_url}
-                        utrValue={donationUtr}
-                        onUtrChange={setDonationUtr}
-                        requiredUtr={false}
-                        title="Community Contribution (UPI)"
-                        subtitle="Scan QR with any UPI app or click to pay directly on mobile"
-                      />
+                    <div className="text-slate-300 text-[11px]">
+                      Event: <strong>{eligibilityResult.registration?.event_title || 'AWS SBG Event'}</strong><br />
+                      Participant: <strong>{eligibilityResult.registration?.full_name || fullName}</strong> ({eligibilityResult.registration?.role || role})
                     </div>
-                  )}
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 space-y-2 text-xs">
+                    <div className="flex items-center gap-1.5 text-rose-400 font-bold uppercase tracking-wider text-[11px]">
+                      <Lock className="w-4 h-4" />
+                      <span>Registration Not Found</span>
+                    </div>
+                    <p className="text-slate-300 text-[11px]">
+                      Badge sirf event registered candidates ko hi mil sakta hai. Bina event register kiye badge generate nahi kiya ja sakta.
+                    </p>
+                    <Link
+                      href="/#events"
+                      onClick={() => setIsClaimModalOpen(false)}
+                      className="inline-block text-[#FF9900] font-semibold text-xs hover:underline"
+                    >
+                      Browse Upcoming Events &amp; Register &rarr;
+                    </Link>
+                  </div>
+                )
+              ) : (
+                <div className="p-3.5 rounded-xl bg-[#140F35] border border-[#2B1E54] text-[11px] text-purple-200/80">
+                  Enter your registered email above to unlock your official badge. Only registered event participants can generate a pass (Limit: 1 badge per email).
                 </div>
               )}
             </div>
 
-            {/* Modal Pinned Bottom Actions */}
+            {/* Modal Actions */}
             <div className="p-4 sm:p-5 pt-3 bg-[#0D0A24] border-t border-[#21143D] flex items-center gap-3 shrink-0 z-10">
               <button
                 type="button"
                 onClick={handleApplyBadge}
-                disabled={submittingClaim}
+                disabled={submittingClaim || (eligibilityResult && !eligibilityResult.registered)}
                 className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#FF9900] hover:brightness-110 text-white text-xs font-bold uppercase tracking-wider transition shadow-lg shadow-purple-950/40 cursor-pointer disabled:opacity-50"
               >
-                {submittingClaim
-                  ? 'Activating Pass...'
-                  : eligibilityResult?.registered
-                  ? 'Claim Free Official Badge'
-                  : `Contribute ₹${donationAmount} & Claim Badge`}
+                {submittingClaim ? 'Verifying Pass...' : 'Verify & Unlock Official Pass'}
               </button>
               <button
                 type="button"

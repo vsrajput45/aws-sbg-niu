@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Calendar, LayoutDashboard, PlusCircle, LogOut, ExternalLink, Shield, Settings, Users, Award, Menu, X, Mic } from 'lucide-react';
+import { Calendar, LayoutDashboard, PlusCircle, LogOut, ExternalLink, Shield, Settings, Users, Award, Menu, X, Mic, Mail } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 
 interface AdminNavProps {
@@ -44,12 +44,12 @@ export function AdminNav({ userEmail = 'admin@niu.ac.in', userRole = 'admin' }: 
 
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/admin/events', label: 'Manage Events', icon: Calendar },
-    { href: '/admin/speakers', label: 'Speaker Proposals', icon: Mic },
-    { href: '/admin/badges', label: 'Badge Verification', icon: Award },
-    { href: '/admin/events/new', label: 'New Event', icon: PlusCircle },
+    { href: '/admin/events', label: 'Events', icon: Calendar },
+    { href: '/admin/speakers', label: 'Speakers', icon: Mic },
+    { href: '/admin/badges', label: 'Badges', icon: Award },
+    { href: '/admin/site-settings?tab=email', label: 'Email Dispatch', icon: Mail },
     { href: '/admin/team', label: 'Core Team', icon: Users },
-    { href: '/admin/site-settings', label: 'Web Page Details', icon: Settings },
+    { href: '/admin/site-settings', label: 'Site Details', icon: Settings },
   ];
 
   return (

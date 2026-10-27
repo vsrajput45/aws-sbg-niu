@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { 
   Calendar, Users, PlusCircle, Clock, UserCheck, Settings, 
   Globe, ArrowRight, ChevronRight, CheckCircle, Mic, Sparkles, 
-  HeartHandshake, GraduationCap, Award 
+  HeartHandshake, GraduationCap, Award, Mail 
 } from 'lucide-react';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
@@ -83,6 +83,14 @@ export default async function AdminDashboardPage() {
             >
               <Settings className="w-4 h-4 text-[#FF9900]" />
               <span>Edit Page Details</span>
+            </Link>
+
+            <Link
+              href="/admin/site-settings?tab=email"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#181818] hover:bg-[#222222] border border-[#333333] text-gray-200 hover:text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition"
+            >
+              <Mail className="w-4 h-4 text-[#FF9900]" />
+              <span>Email Sender ({siteSettings.candidateSenderEmail || siteSettings.officialEmail || 'aws.sbg@niu.ac.in'})</span>
             </Link>
 
             <Link

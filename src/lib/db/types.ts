@@ -157,6 +157,15 @@ export interface SiteSettingsRecord {
   memberCountSnapshot: number;
   snapshotAsOf: string;
   officialEmail: string;
+  // Candidate Dispatch Email Configuration
+  candidateSenderEmail?: string;
+  candidateSenderName?: string;
+  candidateReplyToEmail?: string;
+  smtpHost?: string;
+  smtpPort?: number;
+  smtpUser?: string;
+  smtpPass?: string;
+  smtpSecure?: boolean;
   meetupUrl: string;
   instagramUrl: string;
   githubUrl: string;
@@ -192,7 +201,7 @@ export interface TeamMemberRecord {
   updated_at?: string;
 }
 
-export type BadgeSource = 'event_registration' | 'community_donation';
+export type BadgeSource = 'event_registration' | 'community_member' | 'community_donation';
 export type BadgeStatus = 'verified' | 'pending' | 'revoked';
 
 export interface BadgeApplicationRecord {

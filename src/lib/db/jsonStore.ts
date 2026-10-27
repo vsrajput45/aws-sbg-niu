@@ -64,6 +64,14 @@ export const defaultSiteSettings: SiteSettingsRecord = {
   memberCountSnapshot: 52,
   snapshotAsOf: "October 2026",
   officialEmail: "aws.sbg@niu.ac.in",
+  candidateSenderEmail: "aws.sbg@niu.ac.in",
+  candidateSenderName: "AWS Student Builder Group • NIU",
+  candidateReplyToEmail: "aws.sbg@niu.ac.in",
+  smtpHost: "smtp.gmail.com",
+  smtpPort: 465,
+  smtpUser: "",
+  smtpPass: "",
+  smtpSecure: true,
   meetupUrl: "https://www.meetup.com/aws-sbg-at-noida-international-university/",
   instagramUrl: "",
   githubUrl: "",
@@ -196,6 +204,10 @@ function ensureDbFile(): DatabaseData {
     }
     if (!parsed.team || parsed.team.length === 0) {
       parsed.team = [...initialTeamMembers];
+      needsRewrite = true;
+    }
+    if (!parsed.events || parsed.events.length === 0) {
+      parsed.events = [sampleDraftEvent];
       needsRewrite = true;
     }
     if (!parsed.badges) {
@@ -950,7 +962,45 @@ export const dbStore = {
 
   getBadgeByCode(code: string): BadgeApplicationRecord | undefined {
     const db = ensureDbFile();
-    return db.badges?.find((b) => b.code && b.code.toLowerCase() === code.trim().toLowerCase());
+    const cleanCode = code.trim().toLowerCase();
+    const found = db.badges?.find((b) => b.code && b.code.toLowerCase() === cleanCode);
+    if (found) return found;
+
+    // Check if code matches an event registration code
+    const reg = db.registrations?.find((r) => r.registration_code && r.registration_code.toLowerCase() === cleanCode);
+    if (reg) {
+      const event = db.events?.find((e) => e.id === reg.event_id);
+      const roleMap: Record<string, string> = {
+        attendee: 'Official Attendee',
+        speaker: 'Featured Speaker',
+        sponsor: 'Official Sponsor',
+        volunteer: 'Community Volunteer',
+      };
+      return {
+        id: `bdg-${reg.id}`,
+        code: reg.registration_code,
+        full_name: reg.full_name,
+        email: reg.email,
+        role: roleMap[reg.role] || 'Official Attendee',
+        institution: reg.college || 'Noida International University',
+        photo_url: null,
+        source: 'event_registration',
+        event_id: reg.event_id,
+        event_title: event?.title || 'AWS SBG Official Event',
+        registration_code: reg.registration_code,
+        donation_amount: 0,
+        donation_utr: null,
+        status: 'verified',
+        qr_payload: `https://aws-sbg-niu.ac.in/verify/${reg.registration_code}`,
+        access_level: 'Full Event & Workshops Access',
+        theme: 'sbg',
+        verified_by: 'Auto (Registration)',
+        verified_at: reg.created_at,
+        created_at: reg.created_at,
+        updated_at: reg.created_at,
+      };
+    }
+    return undefined;
   },
 
   getBadgeByEmail(email: string): BadgeApplicationRecord | undefined {
@@ -972,18 +1022,23 @@ export const dbStore = {
     const existing = db.badges.find((b) => b.email.toLowerCase() === data.email.trim().toLowerCase());
     if (existing) {
       existing.updated_at = now;
+      if (data.code) existing.code = data.code;
+      if (data.status) existing.status = data.status;
       if (data.theme) existing.theme = data.theme;
       if (data.photo_url !== undefined) existing.photo_url = data.photo_url;
       if (data.access_level) existing.access_level = data.access_level;
       if (data.full_name) existing.full_name = data.full_name;
       if (data.institution) existing.institution = data.institution;
-      if (data.role && existing.status !== 'verified') existing.role = data.role;
+      if (data.role) existing.role = data.role;
       if (data.source) existing.source = data.source;
       if (data.donation_amount !== undefined && data.donation_amount !== null) existing.donation_amount = data.donation_amount;
       if (data.donation_utr) existing.donation_utr = data.donation_utr;
       if (data.event_id) existing.event_id = data.event_id;
       if (data.event_title) existing.event_title = data.event_title;
       if (data.registration_code) existing.registration_code = data.registration_code;
+      if (data.qr_payload) existing.qr_payload = data.qr_payload;
+      if (data.verified_by) existing.verified_by = data.verified_by;
+      if (data.verified_at) existing.verified_at = data.verified_at;
       writeDbFile(db);
       return existing;
     }

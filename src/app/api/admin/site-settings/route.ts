@@ -11,7 +11,14 @@ export async function GET() {
 
   await db.ensureLoaded();
   const settings = db.getSiteSettings();
-  return NextResponse.json({ success: true, settings });
+  return NextResponse.json({
+    success: true,
+    settings: {
+      ...settings,
+      hasSmtpPass: Boolean(settings.smtpPass),
+      smtpPass: settings.smtpPass ? '••••••••' : '',
+    },
+  });
 }
 
 export async function POST(request: Request) {
@@ -49,6 +56,14 @@ export async function POST(request: Request) {
       memberCountSnapshot,
       snapshotAsOf,
       officialEmail,
+      candidateSenderEmail,
+      candidateSenderName,
+      candidateReplyToEmail,
+      smtpHost,
+      smtpPort,
+      smtpUser,
+      smtpPass,
+      smtpSecure,
       meetupUrl,
       instagramUrl,
       githubUrl,
@@ -79,6 +94,14 @@ export async function POST(request: Request) {
       ...(memberCountSnapshot !== undefined && { memberCountSnapshot: Number(memberCountSnapshot) || 0 }),
       ...(snapshotAsOf !== undefined && { snapshotAsOf: String(snapshotAsOf).trim() }),
       ...(officialEmail !== undefined && { officialEmail: String(officialEmail).trim() }),
+      ...(candidateSenderEmail !== undefined && { candidateSenderEmail: String(candidateSenderEmail).trim().toLowerCase() }),
+      ...(candidateSenderName !== undefined && { candidateSenderName: String(candidateSenderName).trim() }),
+      ...(candidateReplyToEmail !== undefined && { candidateReplyToEmail: String(candidateReplyToEmail).trim().toLowerCase() }),
+      ...(smtpHost !== undefined && { smtpHost: String(smtpHost).trim() }),
+      ...(smtpPort !== undefined && { smtpPort: Number(smtpPort) || 465 }),
+      ...(smtpUser !== undefined && { smtpUser: String(smtpUser).trim() }),
+      ...(smtpPass !== undefined && smtpPass !== '••••••••' && { smtpPass: String(smtpPass).trim() }),
+      ...(smtpSecure !== undefined && { smtpSecure: Boolean(smtpSecure) }),
       ...(meetupUrl !== undefined && { meetupUrl: String(meetupUrl).trim() }),
       ...(instagramUrl !== undefined && { instagramUrl: String(instagramUrl).trim() }),
       ...(githubUrl !== undefined && { githubUrl: String(githubUrl).trim() }),
@@ -105,7 +128,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: 'Web page details updated successfully!',
+      message: 'Web page and email dispatch details updated successfully!',
       settings: updated,
     });
   } catch (error: unknown) {

@@ -377,24 +377,56 @@ export const dbStore = {
 
           if (data && data.data) {
             const parsed = data.data as DatabaseData;
+            let changed = false;
+
+            // Ensure site settings
+            if (!parsed.site_settings) {
+              parsed.site_settings = { ...defaultSiteSettings };
+              changed = true;
+            }
+
+            // Ensure team members
             if (!parsed.team || parsed.team.length === 0) {
               parsed.team = [...initialTeamMembers];
+              changed = true;
             } else {
-              let changed = false;
               for (const initial of initialTeamMembers) {
                 if (!parsed.team.some((m) => m.id === initial.id || m.name.toLowerCase().trim() === initial.name.toLowerCase().trim())) {
                   parsed.team.push({ ...initial });
                   changed = true;
                 }
               }
-              if (changed) {
-                void supabase.from('app_state').upsert({
-                  id: 'aws_sbg_niu',
-                  data: parsed,
-                  updated_at: new Date().toISOString(),
-                });
+            }
+
+            // Ensure events
+            if (!parsed.events || parsed.events.length === 0) {
+              parsed.events = [aiCloudSummitEvent, sampleDraftEvent];
+              changed = true;
+            } else {
+              if (!parsed.events.some((e: any) => e.id === aiCloudSummitEvent.id || e.slug === aiCloudSummitEvent.slug)) {
+                parsed.events.unshift(aiCloudSummitEvent);
+                changed = true;
               }
             }
+
+            // Ensure badges and speaker proposals arrays
+            if (!parsed.badges) {
+              parsed.badges = [];
+              changed = true;
+            }
+            if (!parsed.speaker_proposals) {
+              parsed.speaker_proposals = [];
+              changed = true;
+            }
+
+            if (changed) {
+              void supabase.from('app_state').upsert({
+                id: 'aws_sbg_niu',
+                data: parsed,
+                updated_at: new Date().toISOString(),
+              });
+            }
+
             memoryCache = parsed;
             return memoryCache;
           }

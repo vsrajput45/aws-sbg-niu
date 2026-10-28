@@ -225,3 +225,4 @@ if (Array.isArray(db.registrations)) {
 
 fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf8');
 console.log('Successfully synced db.json!');
+

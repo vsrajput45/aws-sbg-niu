@@ -1,44 +1,56 @@
 import { z } from 'zod';
 
 // Public Event Registration Schema
-export const publicRegistrationSchema = z.object({
-  eventId: z.string().min(1, 'Event ID is required'),
-  role: z.enum(['attendee', 'speaker', 'sponsor', 'volunteer']).default('attendee'),
-  fullName: z.string().min(2, 'Full name must be at least 2 characters').max(100),
-  email: z.string().email('Please enter a valid email address'),
-  phone: z.string().min(10, 'Please enter a valid phone number').max(20),
-  college: z.string().optional().default('N/A'),
-  courseYear: z.string().optional().default('N/A'),
-  collegeId: z.string().optional(),
-  hearAbout: z.string().optional().default('Community / Campus Announcement'),
-  consent: z.literal(true, {
-    message: 'You must agree to be contacted regarding this event',
-  }),
-  // Honeypot field for spam prevention - must remain empty!
-  website_trap: z.string().max(0, 'Spam detected').optional(),
-  customAnswers: z.record(z.string(), z.string()).optional(),
+export const publicRegistrationSchema = z
+  .object({
+    eventId: z.string().min(1, 'Event ID is required'),
+    role: z.enum(['attendee', 'speaker', 'sponsor', 'volunteer']).default('attendee'),
+    fullName: z.string().min(2, 'Full name must be at least 2 characters').max(100),
+    email: z.string().email('Please enter a valid email address'),
+    phone: z.string().min(10, 'Please enter a valid phone number').max(20),
+    college: z.string().optional().default('N/A'),
+    courseYear: z.string().optional().default('N/A'),
+    collegeId: z.string().optional(),
+    hearAbout: z.string().optional().default('Community / Campus Announcement'),
+    consent: z.literal(true, {
+      message: 'You must agree to be contacted regarding this event',
+    }),
+    // Honeypot field for spam prevention - must remain empty!
+    website_trap: z.string().max(0, 'Spam detected').optional(),
+    customAnswers: z.record(z.string(), z.string()).optional(),
 
-  // Speaker fields
-  topicTitle: z.string().optional(),
-  topicAbstract: z.string().optional(),
-  speakerBio: z.string().optional(),
-  portfolioOrLinkedin: z.string().optional(),
-  previousSpeakingLinks: z.string().optional(),
+    // Speaker fields
+    topicTitle: z.string().optional(),
+    topicAbstract: z.string().optional(),
+    speakerBio: z.string().optional(),
+    portfolioOrLinkedin: z.string().optional(),
+    previousSpeakingLinks: z.string().optional(),
 
-  // Sponsor fields
-  companyName: z.string().optional(),
-  companyWebsite: z.string().optional(),
-  sponsorTierInterest: z.string().optional(),
-  designation: z.string().optional(),
-  sponsorshipNotes: z.string().optional(),
+    // Sponsor fields
+    companyName: z.string().optional(),
+    companyWebsite: z.string().optional(),
+    sponsorTierInterest: z.string().optional(),
+    designation: z.string().optional(),
+    sponsorshipNotes: z.string().optional(),
 
-  // Volunteer fields
-  volunteerInterest: z.string().optional(),
-  volunteerExperience: z.string().optional(),
+    // Volunteer fields
+    volunteerInterest: z.string().optional(),
+    volunteerExperience: z.string().optional(),
 
-  // Payment field
-  paymentUtr: z.string().optional(),
-});
+    // Payment field
+    paymentUtr: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.role === 'attendee' || data.role === 'volunteer') {
+      if (!data.collegeId || data.collegeId.trim().length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Student ID / Enrollment Number is mandatory for event registration',
+          path: ['collegeId'],
+        });
+      }
+    }
+  });
 
 export type PublicRegistrationInput = z.infer<typeof publicRegistrationSchema>;
 

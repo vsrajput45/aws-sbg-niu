@@ -135,6 +135,11 @@ export function RegistrationModal({
       return;
     }
 
+    if ((selectedRole === 'attendee' || selectedRole === 'volunteer') && (!collegeId || !collegeId.trim())) {
+      setError('Student ID / Enrollment Number is mandatory for event registration.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -151,7 +156,7 @@ export function RegistrationModal({
       if (selectedRole === 'attendee') {
         payload.college = college;
         payload.courseYear = courseYear;
-        payload.collegeId = collegeId || undefined;
+        payload.collegeId = collegeId.trim();
         payload.hearAbout = hearAbout;
         if (event.fee_type === 'paid') {
           payload.paymentUtr = paymentUtr;
@@ -177,6 +182,7 @@ export function RegistrationModal({
       } else if (selectedRole === 'volunteer') {
         payload.college = college;
         payload.courseYear = courseYear;
+        payload.collegeId = collegeId.trim();
         payload.volunteerInterest = volunteerDomain;
         payload.volunteerExperience = volunteerExperience;
         payload.hearAbout = hearAbout || 'Volunteer Callout';
@@ -518,13 +524,14 @@ export function RegistrationModal({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div>
                         <label className="block text-[11px] font-medium uppercase tracking-wider text-purple-200 mb-1">
-                          Student ID (Optional)
+                          Student ID / Enrollment Number *
                         </label>
                         <input
                           type="text"
+                          required
                           value={collegeId}
                           onChange={(e) => setCollegeId(e.target.value)}
-                          placeholder="e.g. NIU-2024-892"
+                          placeholder="e.g. NIU2024CS089"
                           className="w-full px-3.5 py-2 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#A855F7]"
                         />
                       </div>
@@ -771,22 +778,38 @@ export function RegistrationModal({
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-[11px] font-medium uppercase tracking-wider text-purple-200 mb-1">
-                        Preferred Organizing Team Domain *
-                      </label>
-                      <select
-                        value={volunteerDomain}
-                        onChange={(e) => setVolunteerDomain(e.target.value)}
-                        className="w-full px-3.5 py-2 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs focus:outline-none focus:border-[#A855F7]"
-                      >
-                        <option value="Stage & Speaker Hospitality">Stage, AV &amp; Speaker Hospitality</option>
-                        <option value="Hands-on Lab & Technical Support">Hands-on Lab &amp; Technical Support</option>
-                        <option value="Registration & Check-In Desk">Registration Desk &amp; Check-In Scanner</option>
-                        <option value="Media, Photography & Video">Media, Photography &amp; Video Coverage</option>
-                        <option value="Social Media & Real-time Coverage">Social Media &amp; Live Community Announcements</option>
-                        <option value="General Operations & Logistics">General Operations &amp; Logistics</option>
-                      </select>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div>
+                        <label className="block text-[11px] font-medium uppercase tracking-wider text-purple-200 mb-1">
+                          Student ID / Enrollment Number *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={collegeId}
+                          onChange={(e) => setCollegeId(e.target.value)}
+                          placeholder="e.g. NIU2024CS089"
+                          className="w-full px-3.5 py-2 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs placeholder-gray-500 focus:outline-none focus:border-[#A855F7]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-medium uppercase tracking-wider text-purple-200 mb-1">
+                          Preferred Organizing Team Domain *
+                        </label>
+                        <select
+                          value={volunteerDomain}
+                          onChange={(e) => setVolunteerDomain(e.target.value)}
+                          className="w-full px-3.5 py-2 bg-[#180C36] border border-[#24143D] rounded-lg text-white text-xs focus:outline-none focus:border-[#A855F7]"
+                        >
+                          <option value="Stage & Speaker Hospitality">Stage, AV &amp; Speaker Hospitality</option>
+                          <option value="Hands-on Lab & Technical Support">Hands-on Lab &amp; Technical Support</option>
+                          <option value="Registration & Check-In Desk">Registration Desk &amp; Check-In Scanner</option>
+                          <option value="Media, Photography & Video">Media, Photography &amp; Video Coverage</option>
+                          <option value="Social Media & Real-time Coverage">Social Media &amp; Live Community Announcements</option>
+                          <option value="General Operations & Logistics">General Operations &amp; Logistics</option>
+                        </select>
+                      </div>
                     </div>
 
                     <div>

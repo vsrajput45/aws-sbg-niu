@@ -14,7 +14,7 @@ import {
   SpeakerProposalStatus,
   SpeakerDeliveryMode
 } from './types';
-import { initialProfiles, sampleDraftEvent, initialRegistrations, initialTeamMembers } from './seed';
+import { initialProfiles, sampleDraftEvent, aiCloudSummitEvent, initialRegistrations, initialTeamMembers } from './seed';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 
 interface DatabaseData {
@@ -135,6 +135,10 @@ function ensureDbFile(): DatabaseData {
         parsed.events = [];
         needsRewrite = true;
       }
+      if (!parsed.events.some((e: any) => e.id === aiCloudSummitEvent.id || e.slug === aiCloudSummitEvent.slug)) {
+        parsed.events.unshift(aiCloudSummitEvent);
+        needsRewrite = true;
+      }
       if (!parsed.badges) {
         parsed.badges = [];
         needsRewrite = true;
@@ -207,7 +211,10 @@ function ensureDbFile(): DatabaseData {
       needsRewrite = true;
     }
     if (!parsed.events || parsed.events.length === 0) {
-      parsed.events = [sampleDraftEvent];
+      parsed.events = [aiCloudSummitEvent, sampleDraftEvent];
+      needsRewrite = true;
+    } else if (!parsed.events.some((e: any) => e.id === aiCloudSummitEvent.id || e.slug === aiCloudSummitEvent.slug)) {
+      parsed.events.unshift(aiCloudSummitEvent);
       needsRewrite = true;
     }
     if (!parsed.badges) {

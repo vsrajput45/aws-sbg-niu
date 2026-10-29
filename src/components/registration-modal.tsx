@@ -953,7 +953,7 @@ export function RegistrationModal({
                     ? '⚡ Volunteer Application Received'
                     : successData.status === 'confirmed'
                     ? '🎓 Registration Confirmed!'
-                    : `Waitlisted (Queue Position #${successData.waitlistPosition || 1})`}
+                    : `⏳ Waiting List (Pending Admin Approval • #${successData.waitlistPosition || 1})`}
                 </span>
               </div>
 
@@ -966,7 +966,7 @@ export function RegistrationModal({
                   ? 'Welcome to the Event Organizing Crew!'
                   : successData.status === 'confirmed'
                   ? 'See You at Noida International University!'
-                  : 'You Are in the Attendee Waitlist Queue'}
+                  : 'Registration Request in Waiting List'}
               </h2>
 
               <p className="text-xs text-gray-300 mt-1 max-w-md mx-auto leading-relaxed">
@@ -978,14 +978,14 @@ export function RegistrationModal({
                   ? 'Our lead organizers will invite you to the pre-event volunteer briefing and domain allocation meeting.'
                   : successData.status === 'confirmed'
                   ? 'Your pass is confirmed. Keep your unique Registration Code handy during in-person check-in.'
-                  : 'As soon as an attendee cancels or capacity is increased, your seat will be automatically confirmed.'}
+                  : `Aapki registration request waiting list me darj ho chuki hai. Admin team dwara approve hote hi aapke email (${successData.email}) par official digital badge pass aur confirmation code send kar diya jayega.`}
               </p>
             </div>
 
             {/* Registration Code Display */}
             <div className="p-4 bg-[#13092B] border border-[#24143D] rounded-xl max-w-sm mx-auto space-y-1.5">
               <span className="text-[10px] text-purple-300 uppercase tracking-widest block font-medium">
-                Official Reference Code ({successData.role.toUpperCase()})
+                {successData.status === 'confirmed' ? `Official Pass Code (${successData.role.toUpperCase()})` : `Reference Registration Code (${successData.role.toUpperCase()})`}
               </span>
               <div className="flex items-center justify-center gap-2">
                 <span className="text-lg sm:text-xl font-mono font-bold text-[#C084FC] tracking-wider select-all">
@@ -1000,6 +1000,19 @@ export function RegistrationModal({
                 </button>
               </div>
             </div>
+
+            {/* Waiting list notice if waitlisted */}
+            {successData.status !== 'confirmed' && (
+              <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl max-w-md mx-auto text-center space-y-1">
+                <span className="text-[11px] font-bold text-amber-300 flex items-center justify-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>Admin Confirmation Pending</span>
+                </span>
+                <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                  Jaise hi admin panel se aapki request confirm hogi, aapko official badge pass aur confirmation email bhej diya jayega.
+                </p>
+              </div>
+            )}
 
             {/* Session Logistics */}
             <div className="bg-[#13092B] border border-[#24143D] rounded-xl p-4 text-left max-w-md mx-auto space-y-2 text-xs">
@@ -1040,7 +1053,7 @@ export function RegistrationModal({
                 <ExternalLink className="w-3 h-3 text-purple-300/50" />
               </a>
 
-              {successData.role === 'attendee' && (
+              {successData.role === 'attendee' && successData.status === 'confirmed' && (
                 <Link
                   href={`/badge?name=${encodeURIComponent(successData.fullName)}&role=Attendee`}
                   className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] hover:brightness-110 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition inline-flex items-center justify-center gap-2 shadow-md shadow-purple-900/30"

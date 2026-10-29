@@ -124,59 +124,61 @@ export async function POST(
 
     const reg = result.registration!;
     
-    // Auto-create / link verified official badge pass for registered participant
-    const host = request.headers.get('host') || 'aws-sbg-niu.vercel.app';
-    const protocol = host.includes('localhost') ? 'http' : 'https';
-    const baseUrl = `${protocol}://${host}`;
+    // Only if status is 'confirmed' (e.g. pre-approved) do we dispatch badge & email immediately
+    if (reg.status === 'confirmed') {
+      const host = request.headers.get('host') || 'aws-sbg-niu.vercel.app';
+      const protocol = host.includes('localhost') ? 'http' : 'https';
+      const baseUrl = `${protocol}://${host}`;
 
-    const badgeRoleMap: Record<string, string> = {
-      attendee: 'Official Attendee',
-      speaker: 'Featured Speaker',
-      sponsor: 'Official Sponsor',
-      volunteer: 'Community Volunteer',
-    };
-    const finalBadgeRole = badgeRoleMap[reg.role] || 'Official Attendee';
+      const badgeRoleMap: Record<string, string> = {
+        attendee: 'Official Attendee',
+        speaker: 'Featured Speaker',
+        sponsor: 'Official Sponsor',
+        volunteer: 'Community Volunteer',
+      };
+      const finalBadgeRole = badgeRoleMap[reg.role] || 'Official Attendee';
 
-    try {
-      db.createBadgeApplication({
-        code: reg.registration_code,
-        full_name: reg.full_name,
-        email: reg.email,
-        role: finalBadgeRole,
-        institution: reg.college || 'Noida International University',
-        source: 'event_registration',
-        event_id: event.id,
-        event_title: event.title,
-        registration_code: reg.registration_code,
-        donation_amount: 0,
-        donation_utr: null,
-        status: 'verified',
-        qr_payload: `${baseUrl}/verify/${reg.registration_code}`,
-        access_level: 'Full Event & Workshops Access',
-        theme: 'sbg',
-        verified_by: 'Auto (Event Registration)',
-        verified_at: new Date().toISOString(),
+      try {
+        db.createBadgeApplication({
+          code: reg.registration_code,
+          full_name: reg.full_name,
+          email: reg.email,
+          role: finalBadgeRole,
+          institution: reg.college || 'Noida International University',
+          source: 'event_registration',
+          event_id: event.id,
+          event_title: event.title,
+          registration_code: reg.registration_code,
+          donation_amount: 0,
+          donation_utr: null,
+          status: 'verified',
+          qr_payload: `${baseUrl}/verify/${reg.registration_code}`,
+          access_level: 'Full Event & Workshops Access',
+          theme: 'sbg',
+          verified_by: 'Auto (Event Registration)',
+          verified_at: new Date().toISOString(),
+        });
+      } catch (badgeErr) {
+        console.warn('Could not auto-create badge application on registration:', badgeErr);
+      }
+
+      // Automatically send confirmation email with badge details and QR code
+      void sendEventRegistrationConfirmationEmail({
+        registration: reg,
+        event,
+        baseUrl,
+        badgeCode: reg.registration_code,
+      }).catch((emailErr) => {
+        console.error('[REGISTRATION EMAIL DISPATCH ERROR]:', emailErr);
       });
-    } catch (badgeErr) {
-      console.warn('Could not auto-create badge application on registration:', badgeErr);
     }
-
-    // Automatically send confirmation email with badge details and QR code
-    void sendEventRegistrationConfirmationEmail({
-      registration: reg,
-      event,
-      baseUrl,
-      badgeCode: reg.registration_code,
-    }).catch((emailErr) => {
-      console.error('[REGISTRATION EMAIL DISPATCH ERROR]:', emailErr);
-    });
 
     // Calculate waitlist position if applicable (attendees only)
     let waitlistPosition: number | null = null;
     if (reg.status === 'waitlisted') {
       const allRegs = db.getRegistrationsForEvent(id);
       const waitlistQueue = allRegs
-        .filter((r) => (r.role || 'attendee') === 'attendee' && r.status === 'waitlisted')
+        .filter((r) => r.status === 'waitlisted')
         .sort((a, b) => a.created_at.localeCompare(b.created_at));
       waitlistPosition = waitlistQueue.findIndex((r) => r.id === reg.id) + 1;
     }

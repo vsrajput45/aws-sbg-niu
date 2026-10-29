@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { 
   Users, CheckCircle2, Clock, Search, Download, Trash2, 
   UserCheck, ArrowLeft, RefreshCw, ChevronUp, Mic, Sparkles, 
-  HeartHandshake, GraduationCap, Building2, ExternalLink, Briefcase 
+  HeartHandshake, GraduationCap, Building2, ExternalLink, Briefcase, Mail 
 } from 'lucide-react';
 import { EventRecord, RegistrationRecord, RegistrationRole, UserRole, PaymentStatus } from '@/lib/db/types';
 import { formatDate, formatDateTime, getRegistrationStatusBadge, getRegistrationRoleBadge } from '@/lib/utils';
@@ -100,12 +100,19 @@ export function RegistrationsClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'updateStatus', registrationId, newStatus }),
       });
+      const data = await res.json();
       if (res.ok) {
         await refreshData();
         if (selectedReg?.id === registrationId) {
           setSelectedReg({ ...selectedReg, status: newStatus });
         }
-        setActionMsg(`Status changed to ${newStatus}.`);
+        if (data.message) {
+          setActionMsg(data.message);
+        } else if (newStatus === 'confirmed') {
+          setActionMsg('Candidate approved! Official badge pass & confirmation email dispatched.');
+        } else {
+          setActionMsg(`Status changed to ${newStatus}.`);
+        }
       }
     } catch {
       setActionMsg('Failed to update status.');
@@ -540,9 +547,11 @@ export function RegistrationsClient({
                         {r.status === 'waitlisted' && (
                           <button
                             onClick={() => handleStatusChange(r.id, 'confirmed')}
-                            className="px-2.5 py-1 bg-emerald-950/40 hover:bg-emerald-950/60 border border-emerald-800/60 text-emerald-400 rounded text-[11px] font-bold transition cursor-pointer"
+                            className="px-2.5 py-1 bg-emerald-950/40 hover:bg-emerald-950/60 border border-emerald-800/60 text-emerald-400 rounded text-[11px] font-bold transition cursor-pointer inline-flex items-center gap-1"
+                            title="Confirm candidate & dispatch official badge email"
                           >
-                            Confirm
+                            <Mail className="w-3 h-3" />
+                            <span>Confirm &amp; Send Mail</span>
                           </button>
                         )}
 
@@ -889,9 +898,10 @@ export function RegistrationsClient({
                 {selectedReg.status !== 'confirmed' && (
                   <button
                     onClick={() => handleStatusChange(selectedReg.id, 'confirmed')}
-                    className="px-3 py-1.5 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/60 text-emerald-300 rounded-lg text-xs font-bold transition cursor-pointer"
+                    className="px-3 py-1.5 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/60 text-emerald-300 rounded-lg text-xs font-bold transition cursor-pointer inline-flex items-center gap-1.5"
                   >
-                    Confirm Pass
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Approve &amp; Send Badge Email</span>
                   </button>
                 )}
 

@@ -691,21 +691,8 @@ export const dbStore = {
       };
     }
 
-    // Capacity & Waitlist check: strictly applies to Attendees
-    let status: 'confirmed' | 'waitlisted' = 'confirmed';
-    if (role === 'attendee') {
-      const currentConfirmedAttendees = db.registrations.filter(
-        (r) => r.event_id === params.eventId && (r.role || 'attendee') === 'attendee' && r.status === 'confirmed'
-      ).length;
-
-      if (event.capacity && currentConfirmedAttendees >= event.capacity) {
-        if (event.waitlist_enabled) {
-          status = 'waitlisted';
-        } else {
-          return { error: 'This event has reached full capacity and attendee registration is closed.' };
-        }
-      }
-    }
+    // Initial registration policy: All requests enter the waiting list pending Admin approval & confirmation
+    const status: 'confirmed' | 'waitlisted' = 'waitlisted';
 
     // Generate unique Registration Code
     // Format: NIUSBG-<cleanSlug>-<roleCode>-<suffix>
@@ -819,16 +806,16 @@ export const dbStore = {
     return true;
   },
 
-  promoteWaitlist(eventId: string): number {
+  promoteWaitlist(eventId: string): { count: number; promoted: RegistrationRecord[] } {
     const db = ensureDbFile();
     const event = db.events.find((e) => e.id === eventId);
-    if (!event) return 0;
+    if (!event) return { count: 0, promoted: [] };
 
     const confirmedCount = db.registrations.filter((r) => r.event_id === eventId && (r.role || 'attendee') === 'attendee' && r.status === 'confirmed').length;
     const capacity = event.capacity || 999999;
     const available = Math.max(0, capacity - confirmedCount);
 
-    if (available <= 0) return 0;
+    if (available <= 0) return { count: 0, promoted: [] };
 
     const waitlisted = db.registrations
       .filter((r) => r.event_id === eventId && (r.role || 'attendee') === 'attendee' && r.status === 'waitlisted')
@@ -840,7 +827,7 @@ export const dbStore = {
     });
 
     writeDbFile(db);
-    return toPromote.length;
+    return { count: toPromote.length, promoted: toPromote };
   },
 
   // Helper

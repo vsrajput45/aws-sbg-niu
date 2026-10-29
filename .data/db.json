@@ -484,11 +484,19 @@
       "Robotics",
       "Business Analytics"
     ],
-    "officialEmail": "aws.sbg@niu.ac.in",
+    "officialEmail": "aws.sbg.niu07@gmail.com",
     "universityName": "Noida International University",
     "aboutDescription": "The AWS Student Builder Group at Noida International University is a student-led, student-driven academic community dedicated to learning, building, and innovating with Amazon Web Services.\n\nWe bridge the gap between classroom theory and real-world industry demands. Through hands-on AWS projects, architectural workshops, and peer mentorship, our members gain deep technical proficiency alongside strategic business acumen.\n\nWhether you are passionate about cloud architecture, cybersecurity, generative AI, machine learning, robotics, or business transformation, this community provides the collaborative launchpad to turn concepts into production cloud systems.",
     "memberCountSnapshot": 52,
-    "speakerInterestForm": "https://forms.gle/placeholder-speaker-interest"
+    "speakerInterestForm": "https://forms.gle/placeholder-speaker-interest",
+    "candidateSenderEmail": "aws.sbg.niu07@gmail.com",
+    "candidateSenderName": "AWS Student Builder Group • NIU",
+    "candidateReplyToEmail": "aws.sbg.niu07@gmail.com",
+    "smtpHost": "smtp.gmail.com",
+    "smtpPort": 465,
+    "smtpUser": "aws.sbg.niu07@gmail.com",
+    "smtpSecure": true,
+    "smtpPass": ""
   },
   "speaker_proposals": []
 }

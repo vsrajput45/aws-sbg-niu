@@ -72,6 +72,7 @@ export async function POST(
     }
 
     let emailSent = false;
+    let emailError: string | undefined;
 
     // When Admin confirms/approves a registration: generate verified badge and dispatch confirmation email!
     if (newStatus === 'confirmed') {
@@ -101,7 +102,6 @@ export async function POST(
         console.warn('Could not auto-create badge application on confirm:', badgeErr);
       }
 
-      let emailError: string | undefined;
       try {
         const emailResult = await sendEventRegistrationConfirmationEmail({
           registration: updated,

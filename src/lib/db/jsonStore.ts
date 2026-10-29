@@ -14,7 +14,7 @@ import {
   SpeakerProposalStatus,
   SpeakerDeliveryMode
 } from './types';
-import { initialProfiles, sampleDraftEvent, aiCloudSummitEvent, initialRegistrations, initialTeamMembers } from './seed';
+import { initialProfiles, initialTeamMembers } from './seed';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 
 interface DatabaseData {
@@ -136,10 +136,6 @@ function ensureDbFile(): DatabaseData {
         parsed.events = [];
         needsRewrite = true;
       }
-      if (!parsed.events.some((e: any) => e.id === aiCloudSummitEvent.id || e.slug === aiCloudSummitEvent.slug)) {
-        parsed.events.unshift(aiCloudSummitEvent);
-        needsRewrite = true;
-      }
       if (!parsed.badges) {
         parsed.badges = [];
         needsRewrite = true;
@@ -183,8 +179,8 @@ function ensureDbFile(): DatabaseData {
 
       const initialData: DatabaseData = {
         profiles: initialProfiles,
-        events: [sampleDraftEvent], // starts with ONE clearly-labelled draft event
-        registrations: initialRegistrations,
+        events: [],
+        registrations: [],
         site_settings: { ...defaultSiteSettings },
         team: [...initialTeamMembers],
         badges: [],
@@ -211,76 +207,12 @@ function ensureDbFile(): DatabaseData {
       parsed.team = [...initialTeamMembers];
       needsRewrite = true;
     }
-    if (!parsed.events || parsed.events.length === 0) {
-      parsed.events = [aiCloudSummitEvent, sampleDraftEvent];
-      needsRewrite = true;
-    } else if (!parsed.events.some((e: any) => e.id === aiCloudSummitEvent.id || e.slug === aiCloudSummitEvent.slug)) {
-      parsed.events.unshift(aiCloudSummitEvent);
+    if (!parsed.events) {
+      parsed.events = [];
       needsRewrite = true;
     }
     if (!parsed.badges) {
-      parsed.badges = [
-        {
-          id: 'bdg-sample-1',
-          code: 'NIU-AWS-2026-5645',
-          full_name: 'Aarav Sharma',
-          email: 'aarav.sharma@niu.ac.in',
-          role: 'Community Builder',
-          institution: 'Noida International University',
-          photo_url: null,
-          source: 'community_donation',
-          donation_amount: 99,
-          donation_utr: 'UPI/2026/89342918',
-          status: 'verified',
-          qr_payload: 'https://aws-sbg-niu.ac.in/verify/NIU-AWS-2026-5645',
-          access_level: 'Full Conference & Workshops',
-          theme: 'sbg',
-          verified_by: 'Admin',
-          verified_at: '2026-10-22T10:00:00.000Z',
-          created_at: '2026-10-22T09:30:00.000Z',
-          updated_at: '2026-10-22T10:00:00.000Z',
-        },
-        {
-          id: 'bdg-sample-2',
-          code: 'NIU-AWS-2026-8812',
-          full_name: 'Neha Sharma',
-          email: 'neha.sharma@niu.ac.in',
-          role: 'Official Attendee',
-          institution: 'Noida International University',
-          photo_url: null,
-          source: 'event_registration',
-          event_id: 'e1000000-0000-0000-0000-000000000001',
-          event_title: 'AWS Cloud Discovery Day & Hands-on Lab',
-          registration_code: 'NIUSBG-AWSCLO-ATT-Q6LI',
-          donation_amount: 0,
-          status: 'verified',
-          qr_payload: 'https://aws-sbg-niu.ac.in/verify/NIU-AWS-2026-8812',
-          access_level: 'Full Conference & Workshops',
-          theme: 'sbg',
-          verified_by: 'System (Event Match)',
-          verified_at: '2026-10-23T11:00:00.000Z',
-          created_at: '2026-10-23T11:00:00.000Z',
-          updated_at: '2026-10-23T11:00:00.000Z',
-        },
-        {
-          id: 'bdg-sample-3',
-          code: 'NIU-AWS-2026-3914',
-          full_name: 'Priyanshu Verma',
-          email: 'priyanshu.v@gmail.com',
-          role: 'Community Builder',
-          institution: 'Delhi Technological University',
-          photo_url: null,
-          source: 'community_donation',
-          donation_amount: 49,
-          donation_utr: 'UPI/2026/77102941',
-          status: 'pending',
-          qr_payload: 'https://aws-sbg-niu.ac.in/verify/NIU-AWS-2026-3914',
-          access_level: 'Full Conference & Workshops',
-          theme: 'classic',
-          created_at: '2026-10-23T14:15:00.000Z',
-          updated_at: '2026-10-23T14:15:00.000Z',
-        },
-      ];
+      parsed.badges = [];
       needsRewrite = true;
     }
 
@@ -302,8 +234,8 @@ function ensureDbFile(): DatabaseData {
     console.error('Error reading db.json, using fallback:', error);
     const fallback: DatabaseData = {
       profiles: initialProfiles,
-      events: [sampleDraftEvent],
-      registrations: initialRegistrations,
+      events: [],
+      registrations: [],
       site_settings: { ...defaultSiteSettings },
       team: [...initialTeamMembers],
     };
@@ -407,14 +339,9 @@ export const dbStore = {
             }
 
             // Ensure events
-            if (!parsed.events || parsed.events.length === 0) {
-              parsed.events = [aiCloudSummitEvent, sampleDraftEvent];
+            if (!parsed.events) {
+              parsed.events = [];
               changed = true;
-            } else {
-              if (!parsed.events.some((e: any) => e.id === aiCloudSummitEvent.id || e.slug === aiCloudSummitEvent.slug)) {
-                parsed.events.unshift(aiCloudSummitEvent);
-                changed = true;
-              }
             }
 
             // Ensure badges and speaker proposals arrays

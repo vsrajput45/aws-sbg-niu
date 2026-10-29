@@ -7,6 +7,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  await db.ensureLoaded();
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -26,6 +27,7 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  await db.ensureLoaded();
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -99,6 +101,7 @@ export async function POST(
         console.warn('Could not auto-create badge application on confirm:', badgeErr);
       }
 
+      let emailError: string | undefined;
       try {
         const emailResult = await sendEventRegistrationConfirmationEmail({
           registration: updated,
@@ -107,7 +110,14 @@ export async function POST(
           badgeCode: updated.registration_code,
         });
         emailSent = Boolean(emailResult.success && !emailResult.skipped);
-      } catch (emailErr) {
+        if (!emailSent) {
+          emailError = emailResult.error || (emailResult.skipped ? 'SMTP credentials missing or unconfigured' : 'Email sending failed');
+          console.warn('[CONFIRM EMAIL DISPATCH WARNING]:', emailError, emailResult);
+        } else {
+          console.log('[CONFIRM EMAIL DISPATCH SUCCESS]: Sent to', updated.email, 'Message ID:', emailResult.messageId);
+        }
+      } catch (emailErr: any) {
+        emailError = emailErr?.message || String(emailErr);
         console.error('[CONFIRM EMAIL DISPATCH ERROR]:', emailErr);
       }
     }
@@ -117,7 +127,9 @@ export async function POST(
       registration: updated,
       emailSent,
       message: newStatus === 'confirmed' 
-        ? `Registration confirmed! Official badge pass & code dispatched to ${updated.email}` 
+        ? (emailSent 
+            ? `Registration confirmed! Official badge pass & code dispatched to ${updated.email}`
+            : `Registration confirmed, but email not delivered: ${emailError || 'Unknown error'}`)
         : `Status changed to ${newStatus}` 
     });
   }

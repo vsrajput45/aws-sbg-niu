@@ -41,6 +41,7 @@ export function getEmailTransporter(overrideConfig?: Partial<SiteSettingsRecord>
   ).trim();
 
   if (!user || !pass) {
+    console.warn(`[EMAIL DISPATCH WARNING] SMTP credentials incomplete: user=${user ? user : '<missing>'}, pass=${pass ? '<set>' : '<missing>'}`);
     return null;
   }
 

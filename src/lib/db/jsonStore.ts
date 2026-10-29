@@ -485,7 +485,36 @@ export const dbStore = {
 
   getEventBySlug(slug: string, includeDrafts = false): EventRecord | null {
     const db = ensureDbFile();
-    const event = db.events.find((e) => e.slug === slug);
+    if (!slug) return null;
+
+    const rawSlug = slug.trim();
+    const decodedSlug = decodeURIComponent(rawSlug).trim();
+    const normalizedSlug = decodedSlug
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    // 1. Direct slug match
+    let event = db.events.find((e) => e.slug === rawSlug || e.slug === decodedSlug || e.slug.toLowerCase() === normalizedSlug);
+
+    // 2. ID match
+    if (!event) {
+      event = db.events.find((e) => e.id === rawSlug);
+    }
+
+    // 3. Fallback: match by title normalization
+    if (!event) {
+      event = db.events.find((e) => {
+        const titleNormalized = e.title
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/[\s_-]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+        return titleNormalized.includes(normalizedSlug) || normalizedSlug.includes(e.slug);
+      });
+    }
+
     if (!event) return null;
     if (!includeDrafts && event.status !== 'published') return null;
     return this.hydrateEvent(event, db.registrations);

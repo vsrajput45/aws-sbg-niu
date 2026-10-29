@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { siteConfig as staticSiteConfig } from '@/config/site';
 import { getLiveSiteConfig } from '@/lib/siteSettings';
@@ -50,6 +50,12 @@ export default async function EventDetailPage({ params }: EventPageProps) {
 
   if (!event) {
     notFound();
+  }
+
+  // Canonicalize URL: if user visited with spaces, ID, or encoded slug, redirect to canonical URL
+  const decodedSlug = decodeURIComponent(slug).trim();
+  if (slug !== event.slug && decodedSlug !== event.slug) {
+    redirect(`/events/${event.slug}`);
   }
 
   const today = new Date().toISOString().split('T')[0];

@@ -86,6 +86,11 @@ export function BadgeAdminClient({ initialBadges }: BadgeAdminClientProps) {
       .catch(() => setModalQrUrl(null));
   }, [selectedBadge]);
 
+  // Sync state whenever server revalidates props
+  useEffect(() => {
+    setBadges(initialBadges);
+  }, [initialBadges]);
+
   // Filtered badges
   const filtered = badges.filter((b) => {
     const matchesSearch = 

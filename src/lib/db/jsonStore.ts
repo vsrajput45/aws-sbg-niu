@@ -29,6 +29,7 @@ interface DatabaseData {
 
 // In-memory cache for ultra-fast reads and fallback in serverless environments (Netlify, AWS Lambda)
 let memoryCache: DatabaseData | null = null;
+let globalRevision: number = Date.now();
 
 function getDataPaths() {
   const localDir = path.join(process.cwd(), '.data');
@@ -313,6 +314,7 @@ function ensureDbFile(): DatabaseData {
 
 function writeDbFile(data: DatabaseData) {
   memoryCache = data;
+  globalRevision = Date.now();
 
   // 1. Asynchronously persist to Supabase if configured (for Vercel serverless)
   if (isSupabaseConfigured()) {
@@ -371,11 +373,17 @@ export const dbStore = {
         if (supabase) {
           const { data, error } = await supabase
             .from('app_state')
-            .select('data')
+            .select('data, updated_at')
             .eq('id', 'aws_sbg_niu')
             .maybeSingle();
 
           if (data && data.data) {
+            if (data.updated_at) {
+              const remoteRev = new Date(data.updated_at).getTime();
+              if (!isNaN(remoteRev) && remoteRev > globalRevision) {
+                globalRevision = remoteRev;
+              }
+            }
             const parsed = data.data as DatabaseData;
             let changed = false;
 
@@ -449,6 +457,15 @@ export const dbStore = {
     }
 
     return ensureDbFile();
+  },
+
+  getRevision(): number {
+    return globalRevision;
+  },
+
+  touchRevision(): number {
+    globalRevision = Date.now();
+    return globalRevision;
   },
 
   async syncToCloud(data?: DatabaseData): Promise<void> {

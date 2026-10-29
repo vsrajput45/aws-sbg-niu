@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Plus_Jakarta_Sans, Inter } from 'next/font/google';
 import './globals.css';
 import { siteConfig } from '@/config/site';
+import { LiveSyncProvider } from '@/components/live-sync-provider';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -126,7 +127,9 @@ export default function RootLayout({
           <div className="absolute top-1/3 -right-32 w-[600px] h-[600px] bg-violet-600/12 rounded-full blur-[160px] pointer-events-none" />
           <div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[150px] pointer-events-none" />
         </div>
-        {children}
+        <LiveSyncProvider>
+          {children}
+        </LiveSyncProvider>
       </body>
     </html>
   );

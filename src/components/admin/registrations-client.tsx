@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Users, CheckCircle2, Clock, Search, Download, Trash2, 
@@ -76,6 +76,23 @@ export function RegistrationsClient({
       setLoading(false);
     }
   };
+
+  // Sync state whenever server revalidates props
+  useEffect(() => {
+    setEvent(initialEvent);
+    setRegistrations(initialRegistrations);
+  }, [initialEvent, initialRegistrations]);
+
+  // Live real-time sync without page reload
+  useEffect(() => {
+    const handleLiveUpdate = () => {
+      void refreshData();
+    };
+    window.addEventListener('aws-sbg-live-update', handleLiveUpdate);
+    return () => {
+      window.removeEventListener('aws-sbg-live-update', handleLiveUpdate);
+    };
+  }, [event.id]);
 
   const handleToggleCheckIn = async (registrationId: string) => {
     try {

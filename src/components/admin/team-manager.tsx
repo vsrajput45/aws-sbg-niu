@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -75,6 +75,10 @@ export function TeamManager({ initialMembers }: TeamManagerProps) {
   const [formData, setFormData] = useState<MemberFormData>(defaultFormData);
   const [deleteConfirmMember, setDeleteConfirmMember] = useState<TeamMemberRecord | null>(null);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+
+  useEffect(() => {
+    setMembers(initialMembers);
+  }, [initialMembers]);
 
   // Status feedback
   const [loading, setLoading] = useState(false);

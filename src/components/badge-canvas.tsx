@@ -8,6 +8,7 @@ import { drawModernQrOnContext } from '@/lib/modernQr';
 interface BadgeCanvasProps {
   initialName?: string;
   initialRole?: string;
+  initialEmail?: string;
 }
 
 type BadgeTheme = 'sbg' | 'classic';
@@ -54,11 +55,11 @@ const ROLES = [
   'Community Volunteer',
 ];
 
-export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder' }: BadgeCanvasProps) {
+export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder', initialEmail = '' }: BadgeCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [fullName, setFullName] = useState(initialName || '');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(initialEmail || '');
   const [institution, setInstitution] = useState('Noida International University');
   const [role, setRole] = useState(
     ROLES.find((r) => r.toLowerCase() === initialRole.toLowerCase()) || 'Community Builder'
@@ -620,6 +621,12 @@ export function BadgeCanvas({ initialName = '', initialRole = 'Community Builder
   useEffect(() => {
     drawBadge();
   }, [drawBadge]);
+
+  useEffect(() => {
+    if (initialEmail && initialEmail.includes('@')) {
+      void handleCheckEligibility(initialEmail);
+    }
+  }, [initialEmail]);
 
   const handleDownload = () => {
     const canvas = canvasRef.current;

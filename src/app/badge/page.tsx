@@ -20,12 +20,12 @@ export const metadata: Metadata = {
 };
 
 interface BadgePageProps {
-  searchParams: Promise<{ name?: string; role?: string }>;
+  searchParams: Promise<{ name?: string; role?: string; email?: string }>;
 }
 
 export default async function BadgePage({ searchParams }: BadgePageProps) {
   await db.ensureLoaded();
-  const { name, role } = await searchParams;
+  const { name, role, email } = await searchParams;
   const siteConfig = getLiveSiteConfig();
   const featuredEvent = db.getFeaturedUpcomingEvent();
 
@@ -56,6 +56,7 @@ export default async function BadgePage({ searchParams }: BadgePageProps) {
           <BadgeCanvas
             initialName={name}
             initialRole={role}
+            initialEmail={email}
           />
         </div>
       </main>

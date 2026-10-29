@@ -119,8 +119,9 @@ export function getSenderEmailConfig(overrideConfig?: Partial<SiteSettingsRecord
  */
 function generateBadgeEmailHtml(badge: BadgeApplicationRecord, baseUrl: string): string {
   const code = badge.code || 'PENDING';
-  const verifyUrl = `${baseUrl.replace(/\/$/, '')}/verify/${code}`;
-  const badgeStudioUrl = `${baseUrl.replace(/\/$/, '')}/badge?name=${encodeURIComponent(badge.full_name)}&role=${encodeURIComponent(badge.role)}`;
+  const cleanBase = baseUrl.replace(/\/$/, '');
+  const verifyUrl = `${cleanBase}/verify/${code}`;
+  const badgeStudioUrl = `${cleanBase}/badge?email=${encodeURIComponent(badge.email)}&name=${encodeURIComponent(badge.full_name)}&role=${encodeURIComponent(badge.role)}`;
 
   return `
 <!DOCTYPE html>
@@ -381,6 +382,20 @@ function generateBadgeEmailHtml(badge: BadgeApplicationRecord, baseUrl: string):
           View &amp; Download Digital Badge &rarr;
         </a>
 
+        <!-- Photo Customization Callout Box -->
+        <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(255, 153, 0, 0.12) 100%); border: 1.5px dashed #A855F7; border-radius: 18px; padding: 22px 20px; margin: 24px 0; text-align: center;">
+          <div style="font-size: 26px; line-height: 1; margin-bottom: 8px;">📸 ✨</div>
+          <div style="font-size: 16px; font-weight: 800; color: #FFFFFF; margin-bottom: 6px;">
+            Apni Photo / Picture Ke Sath Badge Pass Banayein!
+          </div>
+          <p style="font-size: 13.5px; color: #D8B4FE; line-height: 1.6; margin: 0 0 16px 0;">
+            Agar aap apne badge par apni <strong>Photo (DP/Picture)</strong> lagana chahte hain, toh hamari official website ke Badge Studio me jakar apne verified email (<strong style="color: #FFAA22;">${badge.email}</strong>) se instant customize karke print-ready badge pass download kar sakte hain!
+          </p>
+          <a href="${badgeStudioUrl}" style="display: inline-block; background: linear-gradient(90deg, #A855F7, #EC4899, #FF9900); color: #FFFFFF !important; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; padding: 12px 26px; border-radius: 12px; box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);">
+            🎨 Customize Badge With Photo &rarr;
+          </a>
+        </div>
+
         <a href="${badgeStudioUrl}" class="cta-btn-secondary" target="_blank">
           Customize in Badge Studio &rarr;
         </a>
@@ -421,7 +436,7 @@ function generateEventRegistrationEmailHtml(params: {
   const { registration, event, baseUrl, badgeCode } = params;
   const cleanBase = baseUrl.replace(/\/$/, '');
   const verifyUrl = `${cleanBase}/verify/${badgeCode}`;
-  const badgeStudioUrl = `${cleanBase}/badge?name=${encodeURIComponent(registration.full_name)}&role=${encodeURIComponent(registration.role)}`;
+  const badgeStudioUrl = `${cleanBase}/badge?email=${encodeURIComponent(registration.email)}&name=${encodeURIComponent(registration.full_name)}&role=${encodeURIComponent(registration.role)}`;
 
   const roleMap: Record<string, string> = {
     attendee: 'Official Attendee',
@@ -748,6 +763,20 @@ function generateEventRegistrationEmailHtml(params: {
         <a href="${verifyUrl}" class="cta-btn-primary" target="_blank">
           View &amp; Download Digital Pass &rarr;
         </a>
+
+        <!-- Photo Customization Callout Box -->
+        <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(255, 153, 0, 0.12) 100%); border: 1.5px dashed #A855F7; border-radius: 18px; padding: 22px 20px; margin: 24px 0; text-align: center;">
+          <div style="font-size: 26px; line-height: 1; margin-bottom: 8px;">📸 ✨</div>
+          <div style="font-size: 16px; font-weight: 800; color: #FFFFFF; margin-bottom: 6px;">
+            Apni Photo / Picture Ke Sath Badge Pass Banayein!
+          </div>
+          <p style="font-size: 13.5px; color: #D8B4FE; line-height: 1.6; margin: 0 0 16px 0;">
+            Agar aap apne badge par apni <strong>Photo (DP/Picture)</strong> lagana chahte hain, toh hamari official website ke Badge Studio me jakar apne verified email (<strong style="color: #FFAA22;">${registration.email}</strong>) se instant customize karke print-ready badge pass download kar sakte hain!
+          </p>
+          <a href="${badgeStudioUrl}" style="display: inline-block; background: linear-gradient(90deg, #A855F7, #EC4899, #FF9900); color: #FFFFFF !important; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; padding: 12px 26px; border-radius: 12px; box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);">
+            🎨 Customize Badge With Photo &rarr;
+          </a>
+        </div>
 
         <a href="${badgeStudioUrl}" class="cta-btn-secondary" target="_blank">
           Customize in Badge Studio &rarr;
